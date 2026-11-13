@@ -26,6 +26,7 @@ import { motorcycleUseReport } from './motorcycle-use-report';
 import { motorcycleDisuseReport } from './motorcycle-disuse-report';
 import { motorcycleChangeReport } from './motorcycle-change-report';
 import { vehicleTransferCertificate } from './vehicle-transfer-certificate';
+import { motorcycleCertificateReissue } from './motorcycle-certificate-reissue';
 
 // 문서 선택 화면에 보이는 서식 목록. 카테고리·제목·설명은 gusring-web과 동일.
 
@@ -400,6 +401,18 @@ export const catalog: CatalogItem[] = [
       vi: 'Hợp đồng chuyển nhượng xe.',
     },
     form: vehicleTransferCertificate,
+  },
+  {
+    formNo: 41,
+    cat: 'VEHICLE',
+    desc: {
+      ko: '오토바이 사용신고필증을 잃어버렸을 때 사용합니다.',
+      en: 'Used to re-issue lost registration certificate.',
+      zh: '丢失摩托车证件重新领取. ',
+      ja: 'バイクの証書を紛失して再発行してもらう時に使用します.',
+      vi: 'Cấp lại giấy chứng nhận xe máy.',
+    },
+    form: motorcycleCertificateReissue,
   },
 ];
 
