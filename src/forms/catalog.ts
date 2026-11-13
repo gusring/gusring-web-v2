@@ -25,6 +25,7 @@ import { residentRecordDelegation } from './resident-record-delegation';
 import { motorcycleUseReport } from './motorcycle-use-report';
 import { motorcycleDisuseReport } from './motorcycle-disuse-report';
 import { motorcycleChangeReport } from './motorcycle-change-report';
+import { vehicleTransferCertificate } from './vehicle-transfer-certificate';
 
 // 문서 선택 화면에 보이는 서식 목록. 카테고리·제목·설명은 gusring-web과 동일.
 
@@ -387,6 +388,18 @@ export const catalog: CatalogItem[] = [
       vi: 'Thay đổi thông tin báo cáo xe máy.',
     },
     form: motorcycleChangeReport,
+  },
+  {
+    formNo: 40,
+    cat: 'VEHICLE',
+    desc: {
+      ko: '차량을 팔거나 넘길 때 작성하는 계약 서류입니다.',
+      en: 'A contract for selling or transferring a vehicle.',
+      zh: '转让车辆时填写的合同. ',
+      ja: '車両を売ったり譲ったりする時に作成する書類です.',
+      vi: 'Hợp đồng chuyển nhượng xe.',
+    },
+    form: vehicleTransferCertificate,
   },
 ];
 
