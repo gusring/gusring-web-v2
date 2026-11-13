@@ -7,6 +7,7 @@ import { adoptionDissolutionReport } from './adoption-dissolution-report';
 import { nameChangeReport } from './name-change-report';
 import { surnameChangeReport } from './surname-change-report';
 import { adoptionReport } from './adoption-report';
+import { fullAdoptionDissolutionReport } from './full-adoption-dissolution-report';
 
 // 문서 선택 화면에 보이는 서식 목록. 카테고리·제목·설명은 gusring-web과 동일.
 
@@ -135,6 +136,18 @@ export const catalog: CatalogItem[] = [
       vi: 'Sử dụng khi nhận con nuôi hợp pháp.',
     },
     form: adoptionReport,
+  },
+  {
+    formNo: 9,
+    cat: 'FAMILY',
+    desc: {
+      ko: '친양자 관계를 법적으로 해소하기 위해 작성합니다.',
+      en: 'Written to legally dissolve a full adoption relationship.',
+      zh: '为了法律上解除亲养子关系而填写。',
+      ja: '特別養子関係を法的に解消するために作成します.',
+      vi: 'Dùng để chấm dứt quan hệ con nuôi đặc biệt về mặt pháp lý.',
+    },
+    form: fullAdoptionDissolutionReport,
   },
 ];
 
