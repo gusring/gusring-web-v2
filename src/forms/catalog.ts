@@ -1,4 +1,5 @@
 import { birthReport } from './birth-report';
+import { familyRegisterCreation } from './family-register-creation';
 import { FormDef, L } from './types';
 
 // 문서 선택 화면에 보이는 서식 목록. 카테고리·제목·설명은 gusring-web과 동일.
@@ -31,7 +32,20 @@ export interface CatalogItem {
 export const entryKey = (item: CatalogItem) => item.key ?? item.form.id;
 export const entryTitle = (item: CatalogItem) => item.title ?? item.form.title;
 
+// v1(gusring-web) 서식 번호 순서
 export const catalog: CatalogItem[] = [
+  {
+    formNo: 1,
+    cat: 'FAMILY',
+    desc: {
+      ko: '가족관계등록부가 없는 사람이 새로 등록을 만들 때 사용합니다.',
+      en: 'Used to create a new family register.',
+      zh: '没有家族关系登记簿的人重新登记时使用。',
+      ja: '家族関係登録簿がない人が新しく登録を作る時に使用します。',
+      vi: 'Sử dụng cho người chưa có sổ đăng ký quan hệ gia đình để lập mới.',
+    },
+    form: familyRegisterCreation,
+  },
   {
     formNo: 4,
     cat: 'FAMILY',
