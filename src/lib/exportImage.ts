@@ -1,4 +1,4 @@
-import { FORM_FONT, FORM_FONT_WEIGHT, INK, lineY, marksFor } from '../forms/render';
+import { FORM_FONT, FORM_FONT_WEIGHT, INK, lineY, markScale, marksFor } from '../forms/render';
 import { FormDef, Mark, pageIndex, Values } from '../forms/types';
 
 // 화면의 FormSvg와 같은 Mark를 Canvas에 그려 PNG로 만든다.
@@ -13,7 +13,7 @@ const loadImage = (src: string) =>
     img.src = src;
   });
 
-function drawMark(ctx: CanvasRenderingContext2D, m: Mark) {
+function drawMark(ctx: CanvasRenderingContext2D, m: Mark, scale = 1) {
   ctx.strokeStyle = INK;
   ctx.fillStyle = INK;
   switch (m.kind) {
@@ -28,19 +28,19 @@ function drawMark(ctx: CanvasRenderingContext2D, m: Mark) {
       break;
     }
     case 'circle':
-      ctx.lineWidth = 2.8;
+      ctx.lineWidth = 2.8 * scale;
       ctx.beginPath();
-      ctx.arc(m.at.x, m.at.y, 15, 0, Math.PI * 2);
+      ctx.arc(m.at.x, m.at.y, 15 * scale, 0, Math.PI * 2);
       ctx.stroke();
       break;
     case 'check':
-      ctx.lineWidth = 3.2;
+      ctx.lineWidth = 3.2 * scale;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
       ctx.beginPath();
-      ctx.moveTo(m.at.x - 8, m.at.y);
-      ctx.lineTo(m.at.x - 2, m.at.y + 7);
-      ctx.lineTo(m.at.x + 10, m.at.y - 10);
+      ctx.moveTo(m.at.x - 8 * scale, m.at.y);
+      ctx.lineTo(m.at.x - 2 * scale, m.at.y + 7 * scale);
+      ctx.lineTo(m.at.x + 10 * scale, m.at.y - 10 * scale);
       ctx.stroke();
       break;
   }
@@ -61,7 +61,7 @@ export async function renderPagePngs(form: FormDef, values: Values): Promise<str
       ctx.fillRect(0, 0, pg.width, pg.height);
       ctx.imageSmoothingQuality = 'high';
       ctx.drawImage(img, 0, 0, pg.width, pg.height);
-      for (const f of form.fields) if (pageIndex(f) === i) for (const m of marksFor(f, values[f.id])) drawMark(ctx, m);
+      for (const f of form.fields) if (pageIndex(f) === i) for (const m of marksFor(f, values[f.id])) drawMark(ctx, m, markScale(pg.width));
       return canvas.toDataURL('image/png');
     }),
   );
