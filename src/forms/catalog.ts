@@ -1,4 +1,5 @@
 import { birthReport } from './birth-report';
+import { deathReport } from './death-report';
 import { familyRegisterCreation } from './family-register-creation';
 import { FormDef, L } from './types';
 
@@ -45,6 +46,18 @@ export const catalog: CatalogItem[] = [
       vi: 'Sử dụng cho người chưa có sổ đăng ký quan hệ gia đình để lập mới.',
     },
     form: familyRegisterCreation,
+  },
+  {
+    formNo: 2,
+    cat: 'FAMILY',
+    desc: {
+      ko: '가족이나 친족이 사망했을 때 관할 기관에 알리는 서류입니다.',
+      en: "A document to notify authorities of a family member's death.",
+      zh: '家属或亲属死亡时向管辖机构报告的文件。',
+      ja: '家族や親族が死亡した時に管轄機関に知らせる書類です。',
+      vi: 'Văn bản thông báo khi có thành viên trong gia đình qua đời.',
+    },
+    form: deathReport,
   },
   {
     formNo: 4,
