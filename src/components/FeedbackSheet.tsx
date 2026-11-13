@@ -18,6 +18,8 @@ const TYPES: { id: FeedbackType; label: keyof typeof UI }[] = [
 
 export interface FeedbackContext {
   formKey?: string;
+  /** gusring-web(v1) 서식 번호 */
+  formNo?: number;
   fieldId?: string;
 }
 
@@ -28,7 +30,7 @@ interface Props extends FeedbackContext {
 
 type Status = { kind: 'idle' } | { kind: 'sending' } | { kind: 'done' } | { kind: 'error'; message: keyof typeof UI };
 
-export default function FeedbackSheet({ lang, formKey, fieldId, onClose }: Props) {
+export default function FeedbackSheet({ lang, formKey, formNo, fieldId, onClose }: Props) {
   const [type, setType] = useState<FeedbackType>(formKey ? 'guide' : 'general');
   const [message, setMessage] = useState('');
   /** 봇을 거르는 숨은 칸 — 사람은 볼 수 없어 비워 둔다 */
@@ -46,7 +48,7 @@ export default function FeedbackSheet({ lang, formKey, fieldId, onClose }: Props
   const submit = async () => {
     if (!canSend) return;
     setStatus({ kind: 'sending' });
-    const r = await sendFeedback({ lang, type, message: trimmed, formKey, fieldId, website });
+    const r = await sendFeedback({ lang, type, message: trimmed, formKey, formNo, fieldId, website });
     if (r.ok) setStatus({ kind: 'done' });
     else if (r.code === 'FEEDBACK_RATE_LIMITED' || r.code === 'COMMON_TOO_MANY_REQUESTS') setStatus({ kind: 'error', message: 'feedbackRateLimited' });
     else if (r.code === 'COMMON_INVALID_INPUT') setStatus({ kind: 'error', message: 'feedbackInvalid' });

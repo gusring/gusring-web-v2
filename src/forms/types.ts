@@ -50,12 +50,19 @@ export interface ChoiceOption {
 
 export type InputSpec =
   | { kind: 'text'; parts: Part[] }
-  | { kind: 'date'; boxes: { y: Box; m: Box; d: Box } }
+  /**
+   * boxes: 서식에 「년 월 일」이 인쇄된 칸 — 숫자만 각 자리에
+   * box: 「년 월 일」이 없는 빈 칸 — 「1990년 1월 1일」로 한 줄에
+   */
+  | { kind: 'date'; boxes: { y: Box; m: Box; d: Box }; box?: undefined }
+  | { kind: 'date'; box: Box; boxes?: undefined }
   | { kind: 'datetime'; boxes: { y: Box; m: Box; d: Box; h: Box; min: Box } }
   | {
       kind: 'choice';
       /** circle: 번호에 영표(○), check: □에 ✓ */
       mark: 'circle' | 'check';
+      /** 여러 개를 고를 수 있음 (값은 쉼표로 이어 저장: 'a,b') */
+      multiple?: boolean;
       options: ChoiceOption[];
       /** 추가 입력칸. when이 있으면 해당 선택일 때만 보인다. */
       extra?: Part & { when?: string[] };
@@ -85,17 +92,31 @@ export interface FieldDef {
   copyFrom?: CopySource[];
   /** 'margin': 번호 토글을 칸 안이 아닌 표 오른쪽 여백에 표시 */
   badge?: 'margin';
+  /** 이 칸이 있는 쪽 (1부터, 없으면 1쪽). 좌표는 그 쪽 이미지 기준 */
+  page?: number;
+}
+
+/** 서식 한 쪽 = 원본 이미지 한 장 */
+export interface FormPage {
+  image: string;
+  width: number;
+  height: number;
+  /** badge: 'margin' 번호를 놓을 x (없으면 오른쪽 끝에서 118px 안쪽) */
+  marginX?: number;
 }
 
 export interface FormDef {
   id: string;
   title: L;
-  image: string;
-  width: number;
-  height: number;
+  /** 쪽 순서대로. 1쪽짜리 서식은 한 장 */
+  pages: FormPage[];
   sections: { id: string; label: L }[];
+  /** 번호·이전/다음 순서. 쪽 순서 → 서식 위에서 아래 순으로 둔다 */
   fields: FieldDef[];
 }
+
+/** 칸이 있는 쪽의 번호 (0부터) */
+export const pageIndex = (field: FieldDef) => (field.page ?? 1) - 1;
 
 /** 항목 하나의 입력값. key는 InputSpec 종류별로 다르다. */
 export type FieldValue = Record<string, string>;
@@ -103,6 +124,7 @@ export type Values = Record<string, FieldValue>;
 
 /** 서식 위에 그려지는 요소 */
 export type Mark =
-  | { kind: 'text'; box: Box; text: string; size: number }
+  /** lines가 있으면 칸 안에 두 줄로 (긴 주소를 좁은 칸에 쓸 때) */
+  | { kind: 'text'; box: Box; text: string; size: number; lines?: string[] }
   | { kind: 'circle'; at: Point }
   | { kind: 'check'; at: Point };

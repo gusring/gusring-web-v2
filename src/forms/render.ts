@@ -28,9 +28,32 @@ export const fitSize = (text: string, box: Box) => {
   return size;
 };
 
+/** 여러 줄 글자의 i번째 줄 세로 가운데 */
+export const lineY = (box: Box, size: number, count: number, i: number) =>
+  box.y + box.h / 2 + (i - (count - 1) / 2) * size * 1.2;
+
+/** 한 줄로 이보다 작아지면 두 줄로 나눠 본다 (두 줄이 더 클 때만) */
+const WRAP_BELOW = 16;
+
+/** 가운데에 가까운 띄어쓰기에서 둘로 나눈다 (띄어쓰기가 없으면 나누지 않음) */
+const splitTwo = (v: string): string[] | null => {
+  const mid = v.length / 2;
+  let best = -1;
+  for (let i = 0; i < v.length; i++) if (v[i] === ' ' && (best < 0 || Math.abs(i - mid) < Math.abs(best - mid))) best = i;
+  return best > 0 ? [v.slice(0, best).trim(), v.slice(best + 1).trim()] : null;
+};
+
 const text = (box: Box, value: string | undefined): Mark[] => {
   const v = value?.trim();
-  return v ? [{ kind: 'text', box, text: v, size: fitSize(v, box) }] : [];
+  if (!v) return [];
+  const size = fitSize(v, box);
+  const lines = size < WRAP_BELOW && box.h >= 30 ? splitTwo(v) : null;
+  if (lines) {
+    let two = Math.min(BASE_SIZE, box.h * 0.42);
+    while (two > MIN_SIZE && Math.max(...lines.map((l) => measure(l, two))) > box.w - 4) two -= 0.5;
+    if (two > size) return [{ kind: 'text', box, text: v, size: two, lines }];
+  }
+  return [{ kind: 'text', box, text: v, size }];
 };
 
 const splitDate = (date?: string) => {
@@ -38,8 +61,11 @@ const splitDate = (date?: string) => {
   return { y, m: m && String(Number(m)), d: d && String(Number(d)) };
 };
 
-const extraVisible = (extra: Part & { when?: string[] }, choice?: string) =>
-  !extra.when || (!!choice && extra.when.includes(choice));
+/** 고른 선택지들 (여러 개 고르기면 쉼표로 이어 저장) */
+export const chosen = (choice?: string) => (choice ? choice.split(',').filter(Boolean) : []);
+
+export const extraVisible = (extra: Part & { when?: string[] }, choice?: string) =>
+  !extra.when || chosen(choice).some((c) => extra.when!.includes(c));
 
 export function marksFor(field: FieldDef, value: FieldValue | undefined): Mark[] {
   if (!value) return [];
@@ -49,6 +75,7 @@ export function marksFor(field: FieldDef, value: FieldValue | undefined): Mark[]
       return input.parts.flatMap((p) => text(p.box, value[p.key]));
     case 'date': {
       const { y, m, d } = splitDate(value.date);
+      if (input.box) return y ? text(input.box, `${y}년 ${m}월 ${d}일`) : [];
       return [...text(input.boxes.y, y), ...text(input.boxes.m, m), ...text(input.boxes.d, d)];
     }
     case 'datetime': {
@@ -60,8 +87,8 @@ export function marksFor(field: FieldDef, value: FieldValue | undefined): Mark[]
       ];
     }
     case 'choice': {
-      const opt = input.options.find((o) => o.value === value.choice);
-      const marks: Mark[] = opt ? [{ kind: input.mark, at: opt.mark }] : [];
+      const picked = chosen(value.choice);
+      const marks: Mark[] = input.options.filter((o) => picked.includes(o.value)).map((o) => ({ kind: input.mark, at: o.mark }));
       if (input.extra && extraVisible(input.extra, value.choice)) marks.push(...text(input.extra.box, value[input.extra.key]));
       return marks;
     }
@@ -114,9 +141,10 @@ export function summaryKo(field: FieldDef, value: FieldValue | undefined): strin
       return `${y}년 ${m}월 ${d}일 ${h}시 ${min}분`;
     }
     case 'choice': {
-      const opt = input.options.find((o) => o.value === value.choice);
+      const picked = chosen(value.choice);
+      const kos = input.options.filter((o) => picked.includes(o.value)).map((o) => o.ko);
       const extra = input.extra && extraVisible(input.extra, value.choice) ? value[input.extra.key]?.trim() : '';
-      return [opt?.ko, extra].filter(Boolean).join(' · ');
+      return [...kos, extra].filter(Boolean).join(' · ');
     }
     case 'country':
       return countryKo(value) ?? '';

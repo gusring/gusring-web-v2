@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ChevronRight, FileText, Search } from 'lucide-react';
-import { catalog, categories, CategoryKey } from '../forms/catalog';
-import { FormDef, Lang } from '../forms/types';
+import { catalog, CatalogItem, categories, CategoryKey, entryKey, entryTitle } from '../forms/catalog';
+import { Lang } from '../forms/types';
 import { tr, UI } from '../i18n';
 import { track } from '../lib/gusring-api';
 
@@ -9,7 +9,7 @@ import { track } from '../lib/gusring-api';
 
 interface Props {
   lang: Lang;
-  onFormSelect: (form: FormDef) => void;
+  onFormSelect: (entry: CatalogItem) => void;
 }
 
 export default function ListView({ lang, onFormSelect }: Props) {
@@ -18,8 +18,10 @@ export default function ListView({ lang, onFormSelect }: Props) {
 
   const filtered = useMemo(() => {
     const q = searchTerm.toLowerCase();
-    return catalog.filter(({ cat, form }) => {
-      const matchesSearch = tr(form.title, lang).toLowerCase().includes(q) || form.title.ko.includes(searchTerm);
+    return catalog.filter((item) => {
+      const title = entryTitle(item);
+      const matchesSearch = tr(title, lang).toLowerCase().includes(q) || title.ko.includes(searchTerm);
+      const { cat } = item;
       return matchesSearch && (selectedCategory === 'ALL' || cat === selectedCategory);
     });
   }, [searchTerm, selectedCategory, lang]);
@@ -77,10 +79,10 @@ export default function ListView({ lang, onFormSelect }: Props) {
           {selectedCategory === 'ALL' ? tr(UI.catAll, lang) : tr(categories[selectedCategory], lang)} ({filtered.length})
         </div>
 
-        {filtered.map(({ cat, desc, form }, idx) => (
+        {filtered.map((item, idx) => (
           <button
-            key={form.id}
-            onClick={() => onFormSelect(form)}
+            key={entryKey(item)}
+            onClick={() => onFormSelect(item)}
             className="toss-card btn-press flex items-center gap-3 sm:gap-4 p-4 sm:p-5 rounded-4xl text-left group animate-slide-up"
             style={{ animationDelay: `${idx * 30}ms` }}
           >
@@ -88,10 +90,10 @@ export default function ListView({ lang, onFormSelect }: Props) {
               <FileText size={22} />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[9px] font-black text-gusring-brand-500 uppercase mb-1 tracking-wider">{tr(categories[cat], lang)}</p>
-              <h3 className="font-bold text-gusring-text text-[15px] leading-snug truncate">{tr(form.title, lang)}</h3>
+              <p className="text-[9px] font-black text-gusring-brand-500 uppercase mb-1 tracking-wider">{tr(categories[item.cat], lang)}</p>
+              <h3 className="font-bold text-gusring-text text-[15px] leading-snug truncate">{tr(entryTitle(item), lang)}</h3>
               <p className="text-[11px] text-gusring-text-hint truncate mt-0.5 leading-relaxed font-medium group-hover:text-gusring-text-sub transition-colors">
-                {tr(desc, lang)}
+                {tr(item.desc, lang)}
               </p>
             </div>
             <ChevronRight size={16} className="text-gusring-border-strong group-hover:text-gusring-brand-500 shrink-0 transition-colors" />
