@@ -4,6 +4,7 @@ import { familyRegisterCreation } from './family-register-creation';
 import { FormDef, L } from './types';
 import { acknowledgmentReport } from './acknowledgment-report';
 import { adoptionDissolutionReport } from './adoption-dissolution-report';
+import { nameChangeReport } from './name-change-report';
 
 // 문서 선택 화면에 보이는 서식 목록. 카테고리·제목·설명은 gusring-web과 동일.
 
@@ -96,6 +97,18 @@ export const catalog: CatalogItem[] = [
       vi: 'Dùng để chấm dứt quan hệ pháp lý giữa con nuôi và cha mẹ nuôi.',
     },
     form: adoptionDissolutionReport,
+  },
+  {
+    formNo: 6,
+    cat: 'FAMILY',
+    desc: {
+      ko: '법원의 허가를 받아 이름을 공식적으로 바꿀 때 제출합니다.',
+      en: "Submitted to officially change one's name with court approval.",
+      zh: '获得法院许可正式改名时提交。',
+      ja: '裁判所の許可を得て名前を公式に変える時に提出します.',
+      vi: 'Nộp để chính thức đổi tên sau khi được tòa án cho phép.',
+    },
+    form: nameChangeReport,
   },
 ];
 
