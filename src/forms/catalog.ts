@@ -17,6 +17,7 @@ import { sealStatusReport } from './seal-status-report';
 import { sealCertificateDelegation } from './seal-certificate-delegation';
 import { idCardLossReport } from './id-card-loss-report';
 import { idCardIssueApplication } from './id-card-issue-application';
+import { idCardReissueApplication } from './id-card-reissue-application';
 
 // 문서 선택 화면에 보이는 서식 목록. 카테고리·제목·설명은 gusring-web과 동일.
 
@@ -283,6 +284,18 @@ export const catalog: CatalogItem[] = [
       vi: 'Làm thẻ căn cước lần đầu khi đủ 17 tuổi.',
     },
     form: idCardIssueApplication,
+  },
+  {
+    formNo: 36,
+    cat: 'ID_SEAL',
+    desc: {
+      ko: '분실, 훼손 등으로 주민등록증을 다시 만들 때 신청합니다.',
+      en: 'Apply for ID card re-issuance.',
+      zh: '因丢失、损坏等重新制作居民身份证. ',
+      ja: '紛失, 毀損などで住民登録証を作り直す時に申請します.',
+      vi: 'Đăng ký làm lại thẻ căn cước.',
+    },
+    form: idCardReissueApplication,
   },
 ];
 
