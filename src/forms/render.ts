@@ -28,9 +28,32 @@ export const fitSize = (text: string, box: Box) => {
   return size;
 };
 
+/** 여러 줄 글자의 i번째 줄 세로 가운데 */
+export const lineY = (box: Box, size: number, count: number, i: number) =>
+  box.y + box.h / 2 + (i - (count - 1) / 2) * size * 1.2;
+
+/** 한 줄로 이보다 작아지면 두 줄로 나눠 본다 */
+const WRAP_BELOW = 13;
+
+/** 가운데에 가까운 띄어쓰기에서 둘로 나눈다 (띄어쓰기가 없으면 나누지 않음) */
+const splitTwo = (v: string): string[] | null => {
+  const mid = v.length / 2;
+  let best = -1;
+  for (let i = 0; i < v.length; i++) if (v[i] === ' ' && (best < 0 || Math.abs(i - mid) < Math.abs(best - mid))) best = i;
+  return best > 0 ? [v.slice(0, best).trim(), v.slice(best + 1).trim()] : null;
+};
+
 const text = (box: Box, value: string | undefined): Mark[] => {
   const v = value?.trim();
-  return v ? [{ kind: 'text', box, text: v, size: fitSize(v, box) }] : [];
+  if (!v) return [];
+  const size = fitSize(v, box);
+  const lines = size < WRAP_BELOW && box.h >= 30 ? splitTwo(v) : null;
+  if (lines) {
+    let two = Math.min(BASE_SIZE, box.h * 0.42);
+    while (two > MIN_SIZE && Math.max(...lines.map((l) => measure(l, two))) > box.w - 4) two -= 0.5;
+    if (two > size) return [{ kind: 'text', box, text: v, size: two, lines }];
+  }
+  return [{ kind: 'text', box, text: v, size }];
 };
 
 const splitDate = (date?: string) => {
@@ -49,6 +72,7 @@ export function marksFor(field: FieldDef, value: FieldValue | undefined): Mark[]
       return input.parts.flatMap((p) => text(p.box, value[p.key]));
     case 'date': {
       const { y, m, d } = splitDate(value.date);
+      if (input.box) return y ? text(input.box, `${y}년 ${m}월 ${d}일`) : [];
       return [...text(input.boxes.y, y), ...text(input.boxes.m, m), ...text(input.boxes.d, d)];
     }
     case 'datetime': {

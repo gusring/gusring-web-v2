@@ -50,7 +50,12 @@ export interface ChoiceOption {
 
 export type InputSpec =
   | { kind: 'text'; parts: Part[] }
-  | { kind: 'date'; boxes: { y: Box; m: Box; d: Box } }
+  /**
+   * boxes: 서식에 「년 월 일」이 인쇄된 칸 — 숫자만 각 자리에
+   * box: 「년 월 일」이 없는 빈 칸 — 「1990년 1월 1일」로 한 줄에
+   */
+  | { kind: 'date'; boxes: { y: Box; m: Box; d: Box }; box?: undefined }
+  | { kind: 'date'; box: Box; boxes?: undefined }
   | { kind: 'datetime'; boxes: { y: Box; m: Box; d: Box; h: Box; min: Box } }
   | {
       kind: 'choice';
@@ -117,6 +122,7 @@ export type Values = Record<string, FieldValue>;
 
 /** 서식 위에 그려지는 요소 */
 export type Mark =
-  | { kind: 'text'; box: Box; text: string; size: number }
+  /** lines가 있으면 칸 안에 두 줄로 (긴 주소를 좁은 칸에 쓸 때) */
+  | { kind: 'text'; box: Box; text: string; size: number; lines?: string[] }
   | { kind: 'circle'; at: Point }
   | { kind: 'check'; at: Point };

@@ -1,4 +1,4 @@
-import { FORM_FONT, FORM_FONT_WEIGHT, INK, marksFor } from '../forms/render';
+import { FORM_FONT, FORM_FONT_WEIGHT, INK, lineY, marksFor } from '../forms/render';
 import { Box, FieldDef, FieldValue, FormDef, FormPage, Mark, pageIndex, Point, Values } from '../forms/types';
 
 // ─────────────────────────────────────────────────────────────
@@ -58,19 +58,25 @@ export function MarkView({ mark }: { mark: Mark }) {
       const { box } = mark;
       const align = box.align ?? 'left';
       const x = align === 'left' ? box.x : align === 'center' ? box.x + box.w / 2 : box.x + box.w;
+      const lines = mark.lines ?? [mark.text];
       return (
-        <text
-          x={x}
-          y={box.y + box.h / 2}
-          fontSize={mark.size}
-          fontFamily={FORM_FONT}
-          fontWeight={FORM_FONT_WEIGHT}
-          fill={INK}
-          dominantBaseline="central"
-          textAnchor={align === 'left' ? 'start' : align === 'center' ? 'middle' : 'end'}
-        >
-          {mark.text}
-        </text>
+        <>
+          {lines.map((line, i) => (
+            <text
+              key={i}
+              x={x}
+              y={lineY(box, mark.size, lines.length, i)}
+              fontSize={mark.size}
+              fontFamily={FORM_FONT}
+              fontWeight={FORM_FONT_WEIGHT}
+              fill={INK}
+              dominantBaseline="central"
+              textAnchor={align === 'left' ? 'start' : align === 'center' ? 'middle' : 'end'}
+            >
+              {line}
+            </text>
+          ))}
+        </>
       );
     }
     case 'circle':

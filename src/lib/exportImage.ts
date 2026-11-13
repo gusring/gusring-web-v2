@@ -1,4 +1,4 @@
-import { FORM_FONT, FORM_FONT_WEIGHT, INK, marksFor } from '../forms/render';
+import { FORM_FONT, FORM_FONT_WEIGHT, INK, lineY, marksFor } from '../forms/render';
 import { FormDef, Mark, pageIndex, Values } from '../forms/types';
 
 // 화면의 FormSvg와 같은 Mark를 Canvas에 그려 PNG로 만든다.
@@ -23,7 +23,8 @@ function drawMark(ctx: CanvasRenderingContext2D, m: Mark) {
       ctx.textAlign = align === 'center' ? 'center' : align === 'right' ? 'right' : 'left';
       ctx.textBaseline = 'middle';
       const x = align === 'left' ? m.box.x : align === 'center' ? m.box.x + m.box.w / 2 : m.box.x + m.box.w;
-      ctx.fillText(m.text, x, m.box.y + m.box.h / 2);
+      const lines = m.lines ?? [m.text];
+      lines.forEach((line, i) => ctx.fillText(line, x, lineY(m.box, m.size, lines.length, i)));
       break;
     }
     case 'circle':
