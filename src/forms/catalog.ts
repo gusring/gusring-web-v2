@@ -21,6 +21,7 @@ import { idCardReissueApplication } from './id-card-reissue-application';
 import { residenceAddressChange } from './residence-address-change';
 import { residentRecordRequest } from './resident-record-request';
 import { residentRegistrationReport } from './resident-registration-report';
+import { residentRecordDelegation } from './resident-record-delegation';
 
 // 문서 선택 화면에 보이는 서식 목록. 카테고리·제목·설명은 gusring-web과 동일.
 
@@ -311,6 +312,18 @@ export const catalog: CatalogItem[] = [
       vi: 'Báo cáo khi mất thẻ căn cước.',
     },
     form: idCardLossReport,
+  },
+  {
+    formNo: 34,
+    cat: 'RESIDENCE',
+    desc: {
+      ko: '주민등록 등·초본 발급을 대리인에게 위임할 때 작성합니다.',
+      en: 'To delegate resident register issuance.',
+      zh: '将居民登记誊·抄本发放委托给代理人. ',
+      ja: '住民登録謄・抄本の発行を代理人に委任する時に作成します.',
+      vi: 'Ủy quyền lấy bản sao sổ hộ khẩu.',
+    },
+    form: residentRecordDelegation,
   },
   {
     formNo: 35,
