@@ -14,6 +14,7 @@ import { divorceReport } from './divorce-report';
 import { surnameCreationReport } from './surname-creation-report';
 import { sealProtectionRequest } from './seal-protection-request';
 import { sealStatusReport } from './seal-status-report';
+import { sealCertificateDelegation } from './seal-certificate-delegation';
 
 // 문서 선택 화면에 보이는 서식 목록. 카테고리·제목·설명은 gusring-web과 동일.
 
@@ -232,6 +233,18 @@ export const catalog: CatalogItem[] = [
     key: 'seal-change-report',
     title: { ko: '인감(변경)신고서(서면)', en: 'Seal Registration', zh: '印章(变更)申报', ja: '印鑑(変更)届', vi: 'Báo cáo thay đổi con dấu cá nhân' },
     preset: { reportType: { choice: 'change' } },
+  },
+  {
+    formNo: 25,
+    cat: 'ID_SEAL',
+    desc: {
+      ko: '대리인이 인감증명을 발급받을 때 작성합니다.',
+      en: 'Written when a representative gets a seal certificate.',
+      zh: '由代理人领取印章证明时填写. ',
+      ja: '代理人が印鑑証明を受け取る時に作成します.',
+      vi: 'Lập khi người đại diện đi lấy chứng nhận con dấu cá nhân.',
+    },
+    form: sealCertificateDelegation,
   },
   {
     formNo: 26,
