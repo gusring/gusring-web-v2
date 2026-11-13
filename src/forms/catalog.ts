@@ -22,6 +22,7 @@ import { residenceAddressChange } from './residence-address-change';
 import { residentRecordRequest } from './resident-record-request';
 import { residentRegistrationReport } from './resident-registration-report';
 import { residentRecordDelegation } from './resident-record-delegation';
+import { motorcycleUseReport } from './motorcycle-use-report';
 
 // 문서 선택 화면에 보이는 서식 목록. 카테고리·제목·설명은 gusring-web과 동일.
 
@@ -348,6 +349,18 @@ export const catalog: CatalogItem[] = [
       vi: 'Đăng ký làm lại thẻ căn cước.',
     },
     form: idCardReissueApplication,
+  },
+  {
+    formNo: 37,
+    cat: 'VEHICLE',
+    desc: {
+      ko: '오토바이를 새로 구입하여 신고할 때 제출합니다.',
+      en: 'Submitted to register a new motorcycle.',
+      zh: '新购买摩托车进行使用申报. ',
+      ja: 'バイクを新しく購入して使用届を出す時に提出します。',
+      vi: 'Đăng ký sử dụng xe máy mới.',
+    },
+    form: motorcycleUseReport,
   },
 ];
 
