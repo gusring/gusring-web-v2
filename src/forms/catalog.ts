@@ -20,6 +20,7 @@ import { idCardIssueApplication } from './id-card-issue-application';
 import { idCardReissueApplication } from './id-card-reissue-application';
 import { residenceAddressChange } from './residence-address-change';
 import { residentRecordRequest } from './resident-record-request';
+import { residentRegistrationReport } from './resident-registration-report';
 
 // 문서 선택 화면에 보이는 서식 목록. 카테고리·제목·설명은 gusring-web과 동일.
 
@@ -286,6 +287,18 @@ export const catalog: CatalogItem[] = [
       vi: 'Đăng ký lấy bản sao sổ hộ khẩu.',
     },
     form: residentRecordRequest,
+  },
+  {
+    formNo: 32,
+    cat: 'RESIDENCE',
+    desc: {
+      ko: '전입, 전출 등 주민등록 사항을 신고할 때 사용합니다.',
+      en: 'Used for resident registration like moving in/out.',
+      zh: '申报迁入、迁出等居民登记事项. ',
+      ja: '転入, 転出など住民登録事項を届け出る時に使用します.',
+      vi: 'Báo cáo các vấn đề đăng ký cư trú.',
+    },
+    form: residentRegistrationReport,
   },
   {
     formNo: 33,
