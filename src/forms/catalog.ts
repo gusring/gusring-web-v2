@@ -5,6 +5,7 @@ import { FormDef, L } from './types';
 import { acknowledgmentReport } from './acknowledgment-report';
 import { adoptionDissolutionReport } from './adoption-dissolution-report';
 import { nameChangeReport } from './name-change-report';
+import { surnameChangeReport } from './surname-change-report';
 
 // 문서 선택 화면에 보이는 서식 목록. 카테고리·제목·설명은 gusring-web과 동일.
 
@@ -109,6 +110,18 @@ export const catalog: CatalogItem[] = [
       vi: 'Nộp để chính thức đổi tên sau khi được tòa án cho phép.',
     },
     form: nameChangeReport,
+  },
+  {
+    formNo: 7,
+    cat: 'FAMILY',
+    desc: {
+      ko: '자녀의 성과 본을 변경하기 위해 작성하는 서류입니다.',
+      en: "Document to change a child's surname and origin.",
+      zh: '为了变更子女的姓和本而填写的材料。',
+      ja: '子の氏と本を変更するために作成する書類です.',
+      vi: 'Văn bản dùng để thay đổi họ và nguồn gốc của con.',
+    },
+    form: surnameChangeReport,
   },
 ];
 
