@@ -3,6 +3,7 @@ import { deathReport } from './death-report';
 import { familyRegisterCreation } from './family-register-creation';
 import { FormDef, L } from './types';
 import { acknowledgmentReport } from './acknowledgment-report';
+import { adoptionDissolutionReport } from './adoption-dissolution-report';
 
 // 문서 선택 화면에 보이는 서식 목록. 카테고리·제목·설명은 gusring-web과 동일.
 
@@ -83,6 +84,18 @@ export const catalog: CatalogItem[] = [
       vi: 'Đơn đăng ký hợp pháp cho trẻ sau khi sinh.',
     },
     form: birthReport,
+  },
+  {
+    formNo: 5,
+    cat: 'FAMILY',
+    desc: {
+      ko: '입양된 자녀와 양부모 사이의 법적 관계를 해소할 때 사용합니다.',
+      en: 'Used to terminate the legal relationship of adoption.',
+      zh: '解除领养子女与养父母之间的法律关系时使用。',
+      ja: '養子と養親の間の法的関係を解消する時に使用します.',
+      vi: 'Dùng để chấm dứt quan hệ pháp lý giữa con nuôi và cha mẹ nuôi.',
+    },
+    form: adoptionDissolutionReport,
   },
 ];
 

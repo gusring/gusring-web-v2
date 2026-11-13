@@ -24,6 +24,12 @@ export const WHO = {
   father: { ko: '아버지', en: 'the father', zh: '父亲', ja: '父', vi: 'bố' },
   mother: { ko: '어머니', en: 'the mother', zh: '母亲', ja: '母', vi: 'mẹ' },
   guardian: { ko: '성년후견인', en: 'the adult guardian', zh: '成年监护人', ja: '成年後見人', vi: 'người giám hộ người thành niên' },
+  adoptiveFather: { ko: '양부(양아버지)', en: 'the adoptive father', zh: '养父', ja: '養父', vi: 'cha nuôi' },
+  adoptiveMother: { ko: '양모(양어머니)', en: 'the adoptive mother', zh: '养母', ja: '養母', vi: 'mẹ nuôi' },
+  adoptee: { ko: '양자', en: 'the adopted child', zh: '养子女', ja: '養子', vi: 'con nuôi' },
+  birthFather: { ko: '양자의 친아버지', en: "the adoptee's birth father", zh: '养子女的生父', ja: '養子の実父', vi: 'cha ruột của con nuôi' },
+  birthMother: { ko: '양자의 친어머니', en: "the adoptee's birth mother", zh: '养子女的生母', ja: '養子の実母', vi: 'mẹ ruột của con nuôi' },
+  consentingGuardian: { ko: '동의하는 성년후견인', en: 'the consenting adult guardian', zh: '表示同意的成年监护人', ja: '同意する成年後見人', vi: 'người giám hộ người thành niên đồng ý' },
 } satisfies Record<string, Who>;
 
 export const nameLabel = (who: Who): L => ({
