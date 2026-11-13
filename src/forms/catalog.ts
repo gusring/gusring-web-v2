@@ -16,6 +16,7 @@ import { sealProtectionRequest } from './seal-protection-request';
 import { sealStatusReport } from './seal-status-report';
 import { sealCertificateDelegation } from './seal-certificate-delegation';
 import { idCardLossReport } from './id-card-loss-report';
+import { idCardIssueApplication } from './id-card-issue-application';
 
 // 문서 선택 화면에 보이는 서식 목록. 카테고리·제목·설명은 gusring-web과 동일.
 
@@ -270,6 +271,18 @@ export const catalog: CatalogItem[] = [
       vi: 'Báo cáo khi mất thẻ căn cước.',
     },
     form: idCardLossReport,
+  },
+  {
+    formNo: 35,
+    cat: 'ID_SEAL',
+    desc: {
+      ko: '만 17세가 되어 처음 주민등록증을 만들 때 신청합니다.',
+      en: 'Apply for the first ID card at age 17.',
+      zh: '满17岁第一次制作居民身份证时申请. ',
+      ja: '満17歳になり, 初めて住民登録証を作る時に申請します.',
+      vi: 'Làm thẻ căn cước lần đầu khi đủ 17 tuổi.',
+    },
+    form: idCardIssueApplication,
   },
 ];
 
