@@ -23,6 +23,7 @@ import { residentRecordRequest } from './resident-record-request';
 import { residentRegistrationReport } from './resident-registration-report';
 import { residentRecordDelegation } from './resident-record-delegation';
 import { motorcycleUseReport } from './motorcycle-use-report';
+import { motorcycleDisuseReport } from './motorcycle-disuse-report';
 
 // 문서 선택 화면에 보이는 서식 목록. 카테고리·제목·설명은 gusring-web과 동일.
 
@@ -361,6 +362,18 @@ export const catalog: CatalogItem[] = [
       vi: 'Đăng ký sử dụng xe máy mới.',
     },
     form: motorcycleUseReport,
+  },
+  {
+    formNo: 38,
+    cat: 'VEHICLE',
+    desc: {
+      ko: '오토바이 사용을 중단하거나 폐기할 때 신고합니다.',
+      en: 'Report stopping or scrapping a motorcycle.',
+      zh: '停止使用或报废摩托车时申报. ',
+      ja: 'バイクの使用を中断または廃棄する時に届け出ます。',
+      vi: 'Báo cáo hủy sử dụng xe máy.',
+    },
+    form: motorcycleDisuseReport,
   },
 ];
 
