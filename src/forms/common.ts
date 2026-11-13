@@ -181,6 +181,7 @@ export const nameSplitField = (b: Base & { who: Who; surname: Box; given: Box; h
   area: b.area,
   page: b.page,
   badge: b.badge,
+  badgeAt: b.badgeAt,
   copyFrom: b.copyFrom,
   input: {
     kind: 'text',
@@ -202,6 +203,7 @@ export const hanjaSplitField = (b: Base & { who: Who; surname: Box; given: Box }
   area: b.area,
   page: b.page,
   badge: b.badge,
+  badgeAt: b.badgeAt,
   copyFrom: b.copyFrom,
   input: {
     kind: 'text',
@@ -223,6 +225,7 @@ export const nameField = (b: Base & { who: Who; box: Box; help?: L; label?: L })
   area: b.area,
   page: b.page,
   badge: b.badge,
+  badgeAt: b.badgeAt,
   copyFrom: b.copyFrom,
   input: { kind: 'text', parts: [{ key: 'name', box: b.box, hangul: true, placeholder: NAME_PLACEHOLDER }] },
 });
@@ -244,6 +247,7 @@ export const nameWithHanjaField = (b: Base & { who: Who; name: Box; hanja: Box; 
   area: b.area,
   page: b.page,
   badge: b.badge,
+  badgeAt: b.badgeAt,
   copyFrom: b.copyFrom,
   input: {
     kind: 'text',
@@ -266,6 +270,7 @@ export const idField = (b: Base & { who: Who } & IdBoxes): FieldDef => ({
   area: b.area,
   page: b.page,
   badge: b.badge,
+  badgeAt: b.badgeAt,
   copyFrom: b.copyFrom,
   input: b.box ? { kind: 'idnum', box: b.box } : { kind: 'idnum', front: b.front, back: b.back },
 });
@@ -281,6 +286,7 @@ export const originField = (b: Base & { who: Who; box: Box }): FieldDef => ({
   area: b.area,
   page: b.page,
   badge: b.badge,
+  badgeAt: b.badgeAt,
   copyFrom: b.copyFrom,
   input: { kind: 'country', box: b.box, allowKorea: true },
 });
@@ -295,6 +301,7 @@ export const addressField = (b: Base & { who: Who; box: Box; help?: L }): FieldD
   area: b.area,
   page: b.page,
   badge: b.badge,
+  badgeAt: b.badgeAt,
   copyFrom: b.copyFrom,
   input: { kind: 'text', parts: [{ key: 'address', box: b.box, korean: true, placeholder: ADDRESS_PLACEHOLDER }] },
 });
@@ -309,6 +316,7 @@ export const bonField = (b: Base & { who: Who; box: Box }): FieldDef => ({
   area: b.area,
   page: b.page,
   badge: b.badge,
+  badgeAt: b.badgeAt,
   copyFrom: b.copyFrom,
   input: { kind: 'text', parts: [{ key: 'bon', box: b.box, placeholder: '예) 金海' }] },
 });
@@ -327,6 +335,7 @@ export const birthDateField = (b: Base & { who: Who } & DateBoxes): FieldDef => 
   area: b.area,
   page: b.page,
   badge: b.badge,
+  badgeAt: b.badgeAt,
   copyFrom: b.copyFrom,
   input: dateInput(b),
 });
@@ -341,6 +350,7 @@ export const sexField = (b: Base & { who: Who; male: { x: number; y: number }; f
   area: b.area,
   page: b.page,
   badge: b.badge,
+  badgeAt: b.badgeAt,
   input: {
     kind: 'choice',
     mark: 'circle',
@@ -362,6 +372,7 @@ export const dateField = (b: Base & { label: L; help: L } & DateBoxes): FieldDef
   area: b.area,
   page: b.page,
   badge: b.badge,
+  badgeAt: b.badgeAt,
   input: dateInput(b),
 });
 
@@ -375,6 +386,7 @@ export const textField = (b: Base & { label: L; help: L; part: Omit<Part, 'key'>
   area: b.area,
   page: b.page,
   badge: b.badge,
+  badgeAt: b.badgeAt,
   copyFrom: b.copyFrom,
   input: { kind: 'text', parts: [{ key: 'text', ...b.part }] },
 });
@@ -523,6 +535,7 @@ export const contactField = (b: Base & { who: Who; phone: Box; email: Box }): Fi
   area: b.area,
   page: b.page,
   badge: b.badge,
+  badgeAt: b.badgeAt,
   input: {
     kind: 'text',
     parts: [
@@ -530,4 +543,33 @@ export const contactField = (b: Base & { who: Who; phone: Box; email: Box }): Fi
       { key: 'email', box: b.email, inputMode: 'email', label: { ko: '이메일 (선택)', en: 'Email (optional)', zh: '电子邮箱（选填）', ja: 'メール（任意）', vi: 'Email (không bắt buộc)' }, placeholder: 'name@example.com' },
     ],
   },
+});
+
+// ── 정부 서식(칸 왼쪽 위에 칸 이름이 인쇄된 표) ─────────────
+
+/** 칸 이름이 왼쪽 위에 있는 칸은 번호를 오른쪽 위에 둔다 */
+export const topRight = (a: Box): { x: number; y: number } => ({ x: a.x + a.w - 18, y: a.y + 18 });
+
+/** 인감 관련 서식의 주민등록번호 안내 (작성방법: 미주민등록 재외국민은 여권번호 등) */
+export const SEAL_ID_HELP: L = {
+  ko: '한국인은 주민등록번호, 외국인은 외국인등록번호, 국내거소신고자는 국내거소신고번호, 주민등록이 없는 재외국민은 여권번호를 적어요.',
+  en: 'Koreans: resident registration number. Foreign nationals: alien registration number. Domestic residence reporters: domestic residence report number. Overseas Koreans without resident registration: passport number.',
+  zh: '韩国人填写居民登录号，外国人填写外国人登录号，国内居所申报者填写国内居所申报号，未进行居民登记的在外国民填写护照号码。',
+  ja: '韓国人は住民登録番号、外国人は外国人登録番号、国内居所申告者は国内居所申告番号、住民登録のない在外国民は旅券番号を書きます。',
+  vi: 'Người Hàn: số đăng ký cư trú. Người nước ngoài: số đăng ký người nước ngoài. Người khai báo cư trú trong nước: số khai báo cư trú. Kiều bào chưa đăng ký cư trú: số hộ chiếu.',
+};
+
+/** 국적 칸 — 한국인은 「대한민국」으로 쓴다 */
+export const nationalityField = (b: Base & { who: Who; box: Box }): FieldDef => ({
+  id: b.id,
+  section: b.section,
+  required: b.required,
+  koLabel: b.koLabel,
+  label: { ko: `${b.who.ko} 국적`, en: `Nationality of ${b.who.en}`, zh: `${b.who.zh}国籍`, ja: `${b.who.ja}の国籍`, vi: `Quốc tịch ${b.who.vi}` },
+  help: { ko: '국적(나라)을 골라요. 목록에 없으면 「목록에 없어요」를 고르고 나라 이름을 한국어로 적어요.', en: 'Choose the nationality (country). If it is not listed, choose "Not listed" and type the country name in Korean.', zh: '选择国籍（国家）。列表中没有时，选择“列表中没有”并用韩文填写国名。', ja: '国籍（国）を選びます。一覧にない場合は「リストにない」を選び、国名を韓国語で書きます。', vi: 'Chọn quốc tịch (nước). Nếu không có trong danh sách, chọn "Không có trong danh sách" và nhập tên nước bằng tiếng Hàn.' },
+  area: b.area,
+  page: b.page,
+  badge: b.badge,
+  badgeAt: b.badgeAt,
+  input: { kind: 'country', box: b.box, allowKorea: 'name' },
 });

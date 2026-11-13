@@ -176,6 +176,7 @@ export default function FieldInputs({ field, value, lang, onChange, onSubmit }: 
     case 'country': {
       const code = value.country ?? '';
       const country = findCountry(code);
+      const koreaAsName = input.allowKorea === 'name';
       return (
         <div className="space-y-3">
           <select className={inputCls} value={code} onChange={(e) => set({ country: e.target.value, text: '' })}>
@@ -186,10 +187,10 @@ export default function FieldInputs({ field, value, lang, onChange, onSubmit }: 
             ))}
             <option value={OTHER_COUNTRY}>{tr(UI.otherCountry, lang)}</option>
           </select>
-          {country && (
-            <p className="text-[13px] font-semibold text-sub">{tr(UI.writtenAs, lang, { ko: country.ko })}</p>
+          {(country || (koreaAsName && code === KOREA)) && (
+            <p className="text-[13px] font-semibold text-sub">{tr(UI.writtenAs, lang, { ko: country ? country.ko : '대한민국' })}</p>
           )}
-          {(code === KOREA || code === OTHER_COUNTRY) && (
+          {((code === KOREA && !koreaAsName) || code === OTHER_COUNTRY) && (
             <PartInput
               part={{ key: 'text', box: input.box, korean: true, placeholder: code === KOREA ? '예) 서울시 금천구 독산로93길 7' : '예) 파키스탄' }}
               lang={lang}
