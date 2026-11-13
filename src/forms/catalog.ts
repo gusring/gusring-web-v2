@@ -15,6 +15,7 @@ import { surnameCreationReport } from './surname-creation-report';
 import { sealProtectionRequest } from './seal-protection-request';
 import { sealStatusReport } from './seal-status-report';
 import { sealCertificateDelegation } from './seal-certificate-delegation';
+import { idCardLossReport } from './id-card-loss-report';
 
 // 문서 선택 화면에 보이는 서식 목록. 카테고리·제목·설명은 gusring-web과 동일.
 
@@ -257,6 +258,18 @@ export const catalog: CatalogItem[] = [
       vi: 'Nộp khi báo cáo hủy hoặc khôi phục con dấu cá nhân.',
     },
     form: sealStatusReport,
+  },
+  {
+    formNo: 33,
+    cat: 'ID_SEAL',
+    desc: {
+      ko: '주민등록증을 잃어버렸을 때 도용 방지를 위해 신고합니다.',
+      en: 'Report a lost ID card to prevent misuse.',
+      zh: '丢失居民身份证时为防止被盗用而申报. ',
+      ja: '住民登録証を紛失した時, 盗用防止のために届け出ます.',
+      vi: 'Báo cáo khi mất thẻ căn cước.',
+    },
+    form: idCardLossReport,
   },
 ];
 
