@@ -2,6 +2,7 @@ import { birthReport } from './birth-report';
 import { deathReport } from './death-report';
 import { familyRegisterCreation } from './family-register-creation';
 import { FormDef, L } from './types';
+import { acknowledgmentReport } from './acknowledgment-report';
 
 // 문서 선택 화면에 보이는 서식 목록. 카테고리·제목·설명은 gusring-web과 동일.
 
@@ -58,6 +59,18 @@ export const catalog: CatalogItem[] = [
       vi: 'Văn bản thông báo khi có thành viên trong gia đình qua đời.',
     },
     form: deathReport,
+  },
+  {
+    formNo: 3,
+    cat: 'FAMILY',
+    desc: {
+      ko: '혼인 외의 자녀를 자신의 자식으로 인정할 때 제출합니다.',
+      en: "Submitted to acknowledge a child born out of wedlock as one's own.",
+      zh: '承认婚姻以外的子女为自己的子女时提交。',
+      ja: '婚姻外の子を自分の子として認める時に提出します.',
+      vi: 'Nộp để công nhận con ngoài giá thú là con của mình.',
+    },
+    form: acknowledgmentReport,
   },
   {
     formNo: 4,
