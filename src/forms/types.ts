@@ -67,7 +67,11 @@ export type InputSpec =
       /** 추가 입력칸. when이 있으면 해당 선택일 때만 보인다. */
       extra?: Part & { when?: string[] };
     }
-  | { kind: 'country'; box: Box; allowKorea?: boolean }
+  /**
+   * allowKorea: true — 한국을 고르면 등록기준지 주소를 받는다 (등록기준지 칸)
+   * allowKorea: 'name' — 한국을 고르면 「대한민국」으로 쓴다 (국적 칸)
+   */
+  | { kind: 'country'; box: Box; allowKorea?: boolean | 'name' }
   /**
    * front·back: 가운데 「-」이 인쇄된 칸
    * box: 「-」이 없는 칸 — 「901231-1234567」로 한 줄에

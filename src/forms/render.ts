@@ -99,14 +99,15 @@ export function marksFor(field: FieldDef, value: FieldValue | undefined): Mark[]
       return marks;
     }
     case 'country':
-      return text(input.box, countryKo(value));
+      return text(input.box, countryKo(value, input.allowKorea));
     case 'idnum':
       if (input.box) return text(input.box, [value.front, value.back].filter((v) => v?.trim()).join('-'));
       return [...text(input.front, value.front), ...text(input.back, value.back)];
   }
 }
 
-const countryKo = (value: FieldValue) => {
+const countryKo = (value: FieldValue, allowKorea?: boolean | 'name') => {
+  if (value.country === KOREA && allowKorea === 'name') return '대한민국';
   if (value.country === KOREA || value.country === OTHER_COUNTRY) return value.text;
   return findCountry(value.country)?.ko;
 };
@@ -125,7 +126,7 @@ export function isFilled(field: FieldDef, value: FieldValue | undefined): boolea
     case 'choice':
       return has('choice') && (!input.extra?.when || !extraVisible(input.extra, value.choice) || has(input.extra.key));
     case 'country':
-      return has('country') && !!countryKo(value)?.trim();
+      return has('country') && !!countryKo(value, input.allowKorea)?.trim();
     case 'idnum':
       return has('front');
   }
@@ -154,7 +155,7 @@ export function summaryKo(field: FieldDef, value: FieldValue | undefined): strin
       return [...kos, extra].filter(Boolean).join(' · ');
     }
     case 'country':
-      return countryKo(value) ?? '';
+      return countryKo(value, input.allowKorea) ?? '';
     case 'idnum':
       // 목록에서는 뒷자리를 가린다
       return `${value.front}-${'*'.repeat(value.back?.length ?? 0)}`;

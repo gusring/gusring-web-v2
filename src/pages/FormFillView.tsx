@@ -31,7 +31,7 @@ export default function FormFillView({ entry, lang, onBack, onLanding, onMap }: 
   const form = entry.form;
   const title = entryTitle(entry);
   const VALUES_KEY = `gusring.${entryKey(entry)}.values`;
-  const [values, setValues] = useState<Values>(() => load<Values>(VALUES_KEY, {}));
+  const [values, setValues] = useState<Values>(() => load<Values>(VALUES_KEY, entry.preset ?? {}));
   const [activeId, setActiveId] = useState<string | null>(null);
   const [zoom, setZoom] = useState(1);
   const [showGuides, setShowGuides] = useState(true);
@@ -227,7 +227,7 @@ export default function FormFillView({ entry, lang, onBack, onLanding, onMap }: 
     if (!window.confirm(tr(UI.resetConfirm, lang))) return;
     track({ type: 'fill_reset', lang, formKey, formNo });
     fillStarted.current = false;
-    setValues({});
+    setValues(entry.preset ?? {});
     setActiveId(null);
     setCursor(-1);
     remove(VALUES_KEY);

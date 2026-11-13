@@ -1,7 +1,7 @@
 import { birthReport } from './birth-report';
 import { deathReport } from './death-report';
 import { familyRegisterCreation } from './family-register-creation';
-import { FormDef, L } from './types';
+import { FormDef, L, Values } from './types';
 import { acknowledgmentReport } from './acknowledgment-report';
 import { adoptionDissolutionReport } from './adoption-dissolution-report';
 import { nameChangeReport } from './name-change-report';
@@ -38,6 +38,8 @@ export interface CatalogItem {
   key?: string;
   /** 목록·작성 화면 제목. 없으면 form.title */
   title?: L;
+  /** 처음 열 때(또는 처음부터) 미리 채워 둘 값 — 서식을 같이 쓰는 항목마다 다른 선택지를 골라 둔다 */
+  preset?: Values;
 }
 
 export const entryKey = (item: CatalogItem) => item.key ?? item.form.id;
