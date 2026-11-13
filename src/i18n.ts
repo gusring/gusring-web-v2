@@ -67,6 +67,7 @@ export const UI = {
   noteSign:      { ko: '서명 또는 도장은 출력한 종이에 직접 해 주세요.', en: 'Sign or stamp the printed form by hand.', zh: '请在打印出的表格上亲自签名或盖章。', ja: '署名または押印は印刷した用紙に直接してください。', vi: 'Hãy ký tên hoặc đóng dấu trực tiếp trên mẫu đã in.' },
   noteCheck:     { ko: '제출하기 전에 창구 직원과 내용을 한 번 확인하세요.', en: 'Check the contents with the counter staff before submitting.', zh: '提交前请与窗口工作人员确认内容。', ja: '提出前に窓口の職員と内容を確認してください。', vi: 'Hãy kiểm tra nội dung với nhân viên tại quầy trước khi nộp.' },
   notePrivacy:   { ko: '입력한 정보는 이 기기에만 저장되고 서버로 보내지 않아요.', en: 'Your information is stored only on this device and is never sent to a server.', zh: '您输入的信息仅保存在本设备上，不会发送到服务器。', ja: '入力した情報はこの端末にのみ保存され、サーバーには送信されません。', vi: 'Thông tin bạn nhập chỉ được lưu trên thiết bị này và không gửi lên máy chủ.' },
+  multiSelect:   { ko: '해당하는 것을 모두 골라요.', en: 'Choose all that apply.', zh: '请选择所有符合的项。', ja: '当てはまるものをすべて選びます。', vi: 'Chọn tất cả các mục phù hợp.' },
   pageOf:        { ko: '{total}쪽 중 {n}쪽', en: 'Page {n} of {total}', zh: '第{n}页 / 共{total}页', ja: '{total}ページ中{n}ページ', vi: 'Trang {n}/{total}' },
   prevPage:      { ko: '앞 쪽', en: 'Previous page', zh: '上一页', ja: '前のページ', vi: 'Trang trước' },
   nextPage:      { ko: '다음 쪽', en: 'Next page', zh: '下一页', ja: '次のページ', vi: 'Trang sau' },

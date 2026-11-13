@@ -61,6 +61,8 @@ export type InputSpec =
       kind: 'choice';
       /** circle: 번호에 영표(○), check: □에 ✓ */
       mark: 'circle' | 'check';
+      /** 여러 개를 고를 수 있음 (값은 쉼표로 이어 저장: 'a,b') */
+      multiple?: boolean;
       options: ChoiceOption[];
       /** 추가 입력칸. when이 있으면 해당 선택일 때만 보인다. */
       extra?: Part & { when?: string[] };

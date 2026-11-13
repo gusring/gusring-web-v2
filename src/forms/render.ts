@@ -32,8 +32,8 @@ export const fitSize = (text: string, box: Box) => {
 export const lineY = (box: Box, size: number, count: number, i: number) =>
   box.y + box.h / 2 + (i - (count - 1) / 2) * size * 1.2;
 
-/** 한 줄로 이보다 작아지면 두 줄로 나눠 본다 */
-const WRAP_BELOW = 13;
+/** 한 줄로 이보다 작아지면 두 줄로 나눠 본다 (두 줄이 더 클 때만) */
+const WRAP_BELOW = 16;
 
 /** 가운데에 가까운 띄어쓰기에서 둘로 나눈다 (띄어쓰기가 없으면 나누지 않음) */
 const splitTwo = (v: string): string[] | null => {
@@ -61,8 +61,11 @@ const splitDate = (date?: string) => {
   return { y, m: m && String(Number(m)), d: d && String(Number(d)) };
 };
 
-const extraVisible = (extra: Part & { when?: string[] }, choice?: string) =>
-  !extra.when || (!!choice && extra.when.includes(choice));
+/** 고른 선택지들 (여러 개 고르기면 쉼표로 이어 저장) */
+export const chosen = (choice?: string) => (choice ? choice.split(',').filter(Boolean) : []);
+
+export const extraVisible = (extra: Part & { when?: string[] }, choice?: string) =>
+  !extra.when || chosen(choice).some((c) => extra.when!.includes(c));
 
 export function marksFor(field: FieldDef, value: FieldValue | undefined): Mark[] {
   if (!value) return [];
@@ -84,8 +87,8 @@ export function marksFor(field: FieldDef, value: FieldValue | undefined): Mark[]
       ];
     }
     case 'choice': {
-      const opt = input.options.find((o) => o.value === value.choice);
-      const marks: Mark[] = opt ? [{ kind: input.mark, at: opt.mark }] : [];
+      const picked = chosen(value.choice);
+      const marks: Mark[] = input.options.filter((o) => picked.includes(o.value)).map((o) => ({ kind: input.mark, at: o.mark }));
       if (input.extra && extraVisible(input.extra, value.choice)) marks.push(...text(input.extra.box, value[input.extra.key]));
       return marks;
     }
@@ -138,9 +141,10 @@ export function summaryKo(field: FieldDef, value: FieldValue | undefined): strin
       return `${y}년 ${m}월 ${d}일 ${h}시 ${min}분`;
     }
     case 'choice': {
-      const opt = input.options.find((o) => o.value === value.choice);
+      const picked = chosen(value.choice);
+      const kos = input.options.filter((o) => picked.includes(o.value)).map((o) => o.ko);
       const extra = input.extra && extraVisible(input.extra, value.choice) ? value[input.extra.key]?.trim() : '';
-      return [opt?.ko, extra].filter(Boolean).join(' · ');
+      return [...kos, extra].filter(Boolean).join(' · ');
     }
     case 'country':
       return countryKo(value) ?? '';

@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import { AlertCircle, Check } from 'lucide-react';
 import { countries, findCountry, KOREA, koreaLabel, OTHER_COUNTRY } from '../forms/countries';
-import { partWarning } from '../forms/render';
+import { chosen, extraVisible, partWarning } from '../forms/render';
 import { FieldDef, FieldValue, Lang, Part } from '../forms/types';
 import { tr, UI } from '../i18n';
 
@@ -127,22 +127,31 @@ export default function FieldInputs({ field, value, lang, onChange, onSubmit }: 
       );
 
     case 'choice': {
-      const extraShown = input.extra && (!input.extra.when || (value.choice && input.extra.when.includes(value.choice)));
+      const extraShown = input.extra && extraVisible(input.extra, value.choice);
+      const picked = chosen(value.choice);
+      const toggle = (v: string) => {
+        if (!input.multiple) return picked.includes(v) ? '' : v;
+        const next = picked.includes(v) ? picked.filter((x) => x !== v) : [...picked, v];
+        // 서식 순서대로 저장
+        return input.options.map((o) => o.value).filter((x) => next.includes(x)).join(',');
+      };
       return (
         <div className="space-y-3">
+          {input.multiple && <p className="text-[12px] font-bold text-sub">{tr(UI.multiSelect, lang)}</p>}
           <div className="grid gap-2">
             {input.options.map((o) => {
-              const selected = value.choice === o.value;
+              const selected = picked.includes(o.value);
               return (
                 <button
                   key={o.value}
                   type="button"
-                  onClick={() => set({ choice: selected ? '' : o.value })}
+                  aria-pressed={selected}
+                  onClick={() => set({ choice: toggle(o.value) })}
                   className={`flex items-center gap-3 px-4 py-3 rounded-2xl border-2 text-left transition active:scale-[0.98] ${
                     selected ? 'border-brand bg-brand-soft' : 'border-line bg-white'
                   }`}
                 >
-                  <span className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${selected ? 'border-brand-950 bg-brand' : 'border-gray-300'}`}>
+                  <span className={`w-5 h-5 ${input.multiple ? 'rounded-md' : 'rounded-full'} border-2 flex items-center justify-center shrink-0 ${selected ? 'border-brand-950 bg-brand' : 'border-gray-300'}`}>
                     {selected && <Check size={12} strokeWidth={3} className="text-brand-950" />}
                   </span>
                   <span className="flex-1 font-bold text-[15px] text-gray-900">{tr(o.label, lang)}</span>

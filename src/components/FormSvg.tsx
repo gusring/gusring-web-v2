@@ -1,4 +1,4 @@
-import { FORM_FONT, FORM_FONT_WEIGHT, INK, lineY, marksFor } from '../forms/render';
+import { extraVisible, FORM_FONT, FORM_FONT_WEIGHT, INK, lineY, marksFor } from '../forms/render';
 import { Box, FieldDef, FieldValue, FormDef, FormPage, Mark, pageIndex, Point, Values } from '../forms/types';
 
 // ─────────────────────────────────────────────────────────────
@@ -30,7 +30,7 @@ function contentArea(field: FieldDef, value?: FieldValue): Box {
   // 마지막 선택지 번호 뒤의 글자(예: 「기타(자격:」)까지 보이도록 여유를 둔다
   let x1 = Math.min(field.area.x + field.area.w, Math.max(...xs) + 110);
   const extra = input.extra;
-  if (extra && (!extra.when || (value?.choice && extra.when.includes(value.choice)))) x1 = Math.max(x1, extra.box.x + extra.box.w);
+  if (extra && extraVisible(extra, value?.choice)) x1 = Math.max(x1, extra.box.x + extra.box.w);
   return { ...field.area, x: x0, w: x1 - x0 };
 }
 
