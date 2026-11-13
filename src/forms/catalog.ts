@@ -1,7 +1,7 @@
 import { birthReport } from './birth-report';
 import { deathReport } from './death-report';
 import { familyRegisterCreation } from './family-register-creation';
-import { FormDef, L } from './types';
+import { FormDef, L, Values } from './types';
 import { acknowledgmentReport } from './acknowledgment-report';
 import { adoptionDissolutionReport } from './adoption-dissolution-report';
 import { nameChangeReport } from './name-change-report';
@@ -12,6 +12,12 @@ import { marriageReport } from './marriage-report';
 import { registerCorrection } from './register-correction';
 import { divorceReport } from './divorce-report';
 import { surnameCreationReport } from './surname-creation-report';
+import { sealProtectionRequest } from './seal-protection-request';
+import { sealStatusReport } from './seal-status-report';
+import { sealCertificateDelegation } from './seal-certificate-delegation';
+import { idCardLossReport } from './id-card-loss-report';
+import { idCardIssueApplication } from './id-card-issue-application';
+import { idCardReissueApplication } from './id-card-reissue-application';
 
 // 문서 선택 화면에 보이는 서식 목록. 카테고리·제목·설명은 gusring-web과 동일.
 
@@ -38,6 +44,8 @@ export interface CatalogItem {
   key?: string;
   /** 목록·작성 화면 제목. 없으면 form.title */
   title?: L;
+  /** 처음 열 때(또는 처음부터) 미리 채워 둘 값 — 서식을 같이 쓰는 항목마다 다른 선택지를 골라 둔다 */
+  preset?: Values;
 }
 
 export const entryKey = (item: CatalogItem) => item.key ?? item.form.id;
@@ -200,6 +208,94 @@ export const catalog: CatalogItem[] = [
       vi: 'Nộp khi tạo và đăng ký một họ mới.',
     },
     form: surnameCreationReport,
+  },
+  {
+    formNo: 22,
+    cat: 'ID_SEAL',
+    desc: {
+      ko: '인감 도용 방지를 위해 본인 외 발급을 제한하거나 해제합니다.',
+      en: 'Restrict or release seal issuance to others.',
+      zh: '为防止印章被盗用, 限制或解除发放. ',
+      ja: '印鑑の盗用防止のために発行を制限したり解除したりします.',
+      vi: 'Ngăn người khác sử dụng con dấu của mình bằng cách hạn chế hoặc hủy việc cấp giấy tờ cho người khác.',
+    },
+    form: sealProtectionRequest,
+  },
+  {
+    formNo: 24,
+    cat: 'ID_SEAL',
+    desc: {
+      ko: '새로운 인감을 등록하거나 기존 인감을 변경할 때 사용합니다.',
+      en: 'Used to register or change a personal seal.',
+      zh: '登记新印章或变更现有印章时使用. ',
+      ja: '新しい印鑑を登録したり既存の印鑑を変更する時に使用します.',
+      vi: 'Sử dụng khi đăng ký con dấu cá nhân mới.',
+    },
+    form: sealStatusReport,
+    // 26번과 같은 서식 — 「신고사항의 변경」을 골라 둔 채로 연다
+    key: 'seal-change-report',
+    title: { ko: '인감(변경)신고서(서면)', en: 'Seal Registration', zh: '印章(变更)申报', ja: '印鑑(変更)届', vi: 'Báo cáo thay đổi con dấu cá nhân' },
+    preset: { reportType: { choice: 'change' } },
+  },
+  {
+    formNo: 25,
+    cat: 'ID_SEAL',
+    desc: {
+      ko: '대리인이 인감증명을 발급받을 때 작성합니다.',
+      en: 'Written when a representative gets a seal certificate.',
+      zh: '由代理人领取印章证明时填写. ',
+      ja: '代理人が印鑑証明を受け取る時に作成します.',
+      vi: 'Lập khi người đại diện đi lấy chứng nhận con dấu cá nhân.',
+    },
+    form: sealCertificateDelegation,
+  },
+  {
+    formNo: 26,
+    cat: 'ID_SEAL',
+    desc: {
+      ko: '인감의 말소, 부활, 사망 신고 등을 할 때 제출합니다.',
+      en: 'Submitted for cancellation or restoration of a seal.',
+      zh: '进行印章的注销、恢复、死亡申报等. ',
+      ja: '印鑑の抹消, 復活, 死亡届などをする時に提出します.',
+      vi: 'Nộp khi báo cáo hủy hoặc khôi phục con dấu cá nhân.',
+    },
+    form: sealStatusReport,
+  },
+  {
+    formNo: 33,
+    cat: 'ID_SEAL',
+    desc: {
+      ko: '주민등록증을 잃어버렸을 때 도용 방지를 위해 신고합니다.',
+      en: 'Report a lost ID card to prevent misuse.',
+      zh: '丢失居民身份证时为防止被盗用而申报. ',
+      ja: '住民登録証を紛失した時, 盗用防止のために届け出ます.',
+      vi: 'Báo cáo khi mất thẻ căn cước.',
+    },
+    form: idCardLossReport,
+  },
+  {
+    formNo: 35,
+    cat: 'ID_SEAL',
+    desc: {
+      ko: '만 17세가 되어 처음 주민등록증을 만들 때 신청합니다.',
+      en: 'Apply for the first ID card at age 17.',
+      zh: '满17岁第一次制作居民身份证时申请. ',
+      ja: '満17歳になり, 初めて住民登録証を作る時に申請します.',
+      vi: 'Làm thẻ căn cước lần đầu khi đủ 17 tuổi.',
+    },
+    form: idCardIssueApplication,
+  },
+  {
+    formNo: 36,
+    cat: 'ID_SEAL',
+    desc: {
+      ko: '분실, 훼손 등으로 주민등록증을 다시 만들 때 신청합니다.',
+      en: 'Apply for ID card re-issuance.',
+      zh: '因丢失、损坏等重新制作居民身份证. ',
+      ja: '紛失, 毀損などで住民登録証を作り直す時に申請します.',
+      vi: 'Đăng ký làm lại thẻ căn cước.',
+    },
+    form: idCardReissueApplication,
   },
 ];
 
