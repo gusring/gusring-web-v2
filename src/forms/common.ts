@@ -148,6 +148,7 @@ interface Base {
   area: Box;
   page?: number;
   badge?: 'margin';
+  badgeAt?: { x: number; y: number };
   copyFrom?: CopySource[];
 }
 

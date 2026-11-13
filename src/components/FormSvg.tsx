@@ -17,6 +17,7 @@ const marginX = (page: FormPage) => page.marginX ?? page.width - 118;
 export function badgePoint(field: FieldDef, page: FormPage): Point {
   const a = field.area;
   const cy = a.h > 50 ? a.y + BADGE_R + 2 : a.y + a.h / 2;
+  if (field.badgeAt) return field.badgeAt;
   if (field.badge === 'margin') return { x: marginX(page), y: a.y + a.h / 2 };
   return { x: a.x + BADGE_R + 2, y: cy };
 }
