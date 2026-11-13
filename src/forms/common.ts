@@ -253,7 +253,9 @@ export const nameWithHanjaField = (b: Base & { who: Who; name: Box; hanja: Box; 
   },
 });
 
-export const idField = (b: Base & { who: Who; front: Box; back: Box }): FieldDef => ({
+type IdBoxes = { front: Box; back: Box; box?: undefined } | { box: Box; front?: undefined; back?: undefined };
+
+export const idField = (b: Base & { who: Who } & IdBoxes): FieldDef => ({
   id: b.id,
   section: b.section,
   required: b.required,
@@ -264,7 +266,7 @@ export const idField = (b: Base & { who: Who; front: Box; back: Box }): FieldDef
   page: b.page,
   badge: b.badge,
   copyFrom: b.copyFrom,
-  input: { kind: 'idnum', front: b.front, back: b.back },
+  input: b.box ? { kind: 'idnum', box: b.box } : { kind: 'idnum', front: b.front, back: b.back },
 });
 
 /** 등록기준지 — 외국인은 국적, 한국인은 주소 */
@@ -465,7 +467,7 @@ export const submitterNameField = (b: Base & { box: Box }): FieldDef =>
     help: SUBMITTER_HELP,
   });
 
-export const submitterIdField = (b: Base & { front: Box; back: Box }): FieldDef => ({
+export const submitterIdField = (b: Base & IdBoxes): FieldDef => ({
   ...idField({ ...b, who: WHO.submitter }),
   help: { ...ID_HELP, ko: ID_HELP.ko + ' 대신 제출하는 사람이 있을 때만 적어요.', en: ID_HELP.en + ' Only if someone submits on your behalf.', zh: ID_HELP.zh + '仅在有人代为提交时填写。', ja: ID_HELP.ja + '代わりに提出する人がいる場合のみ書きます。', vi: ID_HELP.vi + ' Chỉ ghi khi có người nộp thay.' },
 });

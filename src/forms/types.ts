@@ -68,7 +68,12 @@ export type InputSpec =
       extra?: Part & { when?: string[] };
     }
   | { kind: 'country'; box: Box; allowKorea?: boolean }
-  | { kind: 'idnum'; front: Box; back: Box };
+  /**
+   * front·back: 가운데 「-」이 인쇄된 칸
+   * box: 「-」이 없는 칸 — 「901231-1234567」로 한 줄에
+   */
+  | { kind: 'idnum'; front: Box; back: Box; box?: undefined }
+  | { kind: 'idnum'; box: Box; front?: undefined; back?: undefined };
 
 /** 다른 항목 값을 복사해 오는 단축 버튼 */
 export interface CopySource {

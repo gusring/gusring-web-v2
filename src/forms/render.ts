@@ -95,6 +95,7 @@ export function marksFor(field: FieldDef, value: FieldValue | undefined): Mark[]
     case 'country':
       return text(input.box, countryKo(value));
     case 'idnum':
+      if (input.box) return text(input.box, [value.front, value.back].filter((v) => v?.trim()).join('-'));
       return [...text(input.front, value.front), ...text(input.back, value.back)];
   }
 }
