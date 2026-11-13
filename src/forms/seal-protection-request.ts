@@ -35,6 +35,7 @@ const fields: FieldDef[] = [
       vi: 'Chọn yêu cầu bảo vệ con dấu cá nhân, hay hủy bảo vệ đã đăng ký. Bảo vệ con dấu cá nhân là chế độ giới hạn người được cấp giấy chứng nhận con dấu cá nhân của bạn chỉ là bạn hoặc người bạn chỉ định.',
     },
     area: { x: 430, y: 150, w: 360, h: 80 },
+    badgeAt: { x: 420, y: 168 },
     input: {
       kind: 'choice', mark: 'check',
       options: [
