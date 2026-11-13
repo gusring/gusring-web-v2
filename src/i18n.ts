@@ -26,8 +26,6 @@ export const UI = {
   officeMap:     { ko: '통합민원실 지도', en: 'Civil service office map', zh: '综合民愿室地图', ja: '総合民願室マップ', vi: 'Sơ đồ phòng dân sự' },
 
   // ── 서식 작성 화면 ──
-  appName:       { ko: '서식 작성 도우미', en: 'Form Helper', zh: '表格填写助手', ja: '書式記入ヘルパー', vi: 'Trợ lý điền mẫu đơn' },
-  prototype:     { ko: '프로토타입', en: 'Prototype', zh: '原型', ja: 'プロトタイプ', vi: 'Bản thử nghiệm' },
   intro: {
     ko: '서식 위 번호를 누르면 모국어 안내와 입력칸이 열려요. 입력한 내용은 한국어 서식에 바로 들어가요.',
     en: 'Tap a number on the form to see an explanation in your language and fill it in. What you enter goes straight onto the Korean form.',

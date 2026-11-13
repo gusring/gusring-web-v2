@@ -7,7 +7,7 @@ import OutputModal from '../components/OutputModal';
 import { isFilled } from '../forms/render';
 import { Box, FieldValue, FormDef, Lang, Values } from '../forms/types';
 import { tr, UI } from '../i18n';
-import { track } from '../lib/gusring-api';
+import { flush, track } from '../lib/gusring-api';
 import { load, remove, save } from '../lib/storage';
 import Header from './Header';
 
@@ -56,8 +56,31 @@ export default function FormFillView({ form, lang, onBack, onLanding, onMap }: P
   const fillStarted = useRef(false);
   useEffect(() => {
     track({ type: 'form_view', lang, formKey });
-    const enteredAt = Date.now();
-    return () => track({ type: 'detail_time', lang, formKey, durationSec: (Date.now() - enteredAt) / 1000 });
+    let enteredAt = Date.now();
+    let sent = false;
+    const sendTime = () => {
+      if (sent) return;
+      sent = true;
+      track({ type: 'detail_time', lang, formKey, durationSec: (Date.now() - enteredAt) / 1000 });
+    };
+    // 탭을 바로 닫으면 화면이 내려가지 않으므로 페이지를 떠날 때도 보낸다
+    const onPageHide = () => {
+      sendTime();
+      void flush(true);
+    };
+    // 뒤로가기 캐시(bfcache)로 돌아오면 이 화면에 다시 들어온 것으로 잰다
+    const onPageShow = (e: PageTransitionEvent) => {
+      if (!e.persisted) return;
+      enteredAt = Date.now();
+      sent = false;
+    };
+    window.addEventListener('pagehide', onPageHide);
+    window.addEventListener('pageshow', onPageShow);
+    return () => {
+      window.removeEventListener('pagehide', onPageHide);
+      window.removeEventListener('pageshow', onPageShow);
+      sendTime();
+    };
   }, [formKey, lang]);
 
   // ── 저장 & 환경 ────────────────────────────────────────────
@@ -153,11 +176,16 @@ export default function FormFillView({ form, lang, onBack, onLanding, onMap }: P
   const [cursor, setCursor] = useState(-1);
 
   const select = useCallback((id: string) => {
-    track({ type: 'field_open', lang, formKey, fieldId: id });
     setActiveId(id);
     setCursor(form.fields.findIndex((f) => f.id === id));
     setListOpen(false);
-  }, [form, lang, formKey]);
+  }, [form]);
+
+  /** 서식 위 번호나 전체 항목에서 직접 고른 칸만 field_open으로 센다 (이전·다음으로 넘긴 칸은 세지 않음) */
+  const openField = useCallback((id: string) => {
+    track({ type: 'field_open', lang, formKey, fieldId: id });
+    select(id);
+  }, [select, lang, formKey]);
 
   const goto = (index: number) => {
     const f = form.fields[index];
@@ -243,7 +271,7 @@ export default function FormFillView({ form, lang, onBack, onLanding, onMap }: P
                 form={form}
                 values={values}
                 className="block w-full h-auto select-none"
-                guides={showGuides ? { activeId, filled, onSelect: select } : undefined}
+                guides={showGuides ? { activeId, filled, onSelect: openField } : undefined}
                 highlightId={showGuides ? null : activeId}
               />
             </div>
@@ -310,7 +338,7 @@ export default function FormFillView({ form, lang, onBack, onLanding, onMap }: P
           />
         )}
 
-        {listOpen && <FieldListSheet form={form} values={values} lang={lang} onSelect={select} onClose={() => setListOpen(false)} />}
+        {listOpen && <FieldListSheet form={form} values={values} lang={lang} onSelect={openField} onClose={() => setListOpen(false)} />}
 
         {outputOpen && (
           <OutputModal

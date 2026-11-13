@@ -35,6 +35,11 @@ export default function FeedbackSheet({ lang, formKey, fieldId, onClose }: Props
   const [website, setWebsite] = useState('');
   const [status, setStatus] = useState<Status>({ kind: 'idle' });
 
+  /** 내용이나 종류를 고치면 이전 오류 문구는 지운다 */
+  const clearError = () => {
+    if (status.kind === 'error') setStatus({ kind: 'idle' });
+  };
+
   const trimmed = message.trim();
   const canSend = trimmed.length > 0 && status.kind !== 'sending';
 
@@ -85,7 +90,10 @@ export default function FeedbackSheet({ lang, formKey, fieldId, onClose }: Props
                   <button
                     key={t.id}
                     type="button"
-                    onClick={() => setType(t.id)}
+                    onClick={() => {
+                      setType(t.id);
+                      clearError();
+                    }}
                     aria-pressed={type === t.id}
                     className={`toss-chip ${type === t.id ? 'active' : ''}`}
                   >
@@ -98,7 +106,10 @@ export default function FeedbackSheet({ lang, formKey, fieldId, onClose }: Props
             <div>
               <textarea
                 value={message}
-                onChange={(e) => setMessage(e.target.value)}
+                onChange={(e) => {
+                  setMessage(e.target.value);
+                  clearError();
+                }}
                 maxLength={MAX_LEN}
                 rows={5}
                 placeholder={tr(UI.feedbackPlaceholder, lang)}
