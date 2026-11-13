@@ -12,6 +12,7 @@ import { marriageReport } from './marriage-report';
 import { registerCorrection } from './register-correction';
 import { divorceReport } from './divorce-report';
 import { surnameCreationReport } from './surname-creation-report';
+import { sealProtectionRequest } from './seal-protection-request';
 
 // 문서 선택 화면에 보이는 서식 목록. 카테고리·제목·설명은 gusring-web과 동일.
 
@@ -202,6 +203,18 @@ export const catalog: CatalogItem[] = [
       vi: 'Nộp khi tạo và đăng ký một họ mới.',
     },
     form: surnameCreationReport,
+  },
+  {
+    formNo: 22,
+    cat: 'ID_SEAL',
+    desc: {
+      ko: '인감 도용 방지를 위해 본인 외 발급을 제한하거나 해제합니다.',
+      en: 'Restrict or release seal issuance to others.',
+      zh: '为防止印章被盗用, 限制或解除发放. ',
+      ja: '印鑑の盗用防止のために発行を制限したり解除したりします.',
+      vi: 'Ngăn người khác sử dụng con dấu của mình bằng cách hạn chế hoặc hủy việc cấp giấy tờ cho người khác.',
+    },
+    form: sealProtectionRequest,
   },
 ];
 
