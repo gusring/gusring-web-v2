@@ -502,3 +502,29 @@ export const EDU_HELP: L = {
   ja: '統計庁の調査項目です。卒業した学校のうち最も高い段階を選びます（教育部が認める正規の学校が基準）。在学中・中退の場合はその前の段階を選びます（例：大学3年在学 → 高校）。',
   vi: 'Đây là mục khảo sát của Cục Thống kê. Chọn bậc học cao nhất đã tốt nghiệp (theo trường chính quy được Bộ Giáo dục công nhận). Nếu đang học hoặc bỏ dở, chọn bậc trước đó (VD: đang học năm 3 đại học → trung học phổ thông).',
 };
+
+/** 전화·이메일이 위아래 두 줄로 붙어 있는 칸 — 번호 하나로 함께 받는다 */
+export const contactField = (b: Base & { who: Who; phone: Box; email: Box }): FieldDef => ({
+  id: b.id,
+  section: b.section,
+  required: b.required,
+  koLabel: b.koLabel,
+  label: { ko: `${b.who.ko} 연락처`, en: `Contact of ${b.who.en}`, zh: `${b.who.zh}联系方式`, ja: `${b.who.ja}の連絡先`, vi: `Liên lạc của ${b.who.vi}` },
+  help: {
+    ko: '연락 가능한 휴대전화 번호를 적어요. 이메일은 선택 사항이에요.',
+    en: 'A mobile number where they can be reached. Email is optional.',
+    zh: '填写可以联系到的手机号码。电子邮箱选填。',
+    ja: '連絡のつく携帯電話番号を書きます。メールアドレスは任意です。',
+    vi: 'Số điện thoại di động có thể liên lạc được. Email không bắt buộc.',
+  },
+  area: b.area,
+  page: b.page,
+  badge: b.badge,
+  input: {
+    kind: 'text',
+    parts: [
+      { key: 'phone', box: b.phone, inputMode: 'tel', label: { ko: '전화', en: 'Phone', zh: '电话', ja: '電話', vi: 'Điện thoại' }, placeholder: '010-1234-5678' },
+      { key: 'email', box: b.email, inputMode: 'email', label: { ko: '이메일 (선택)', en: 'Email (optional)', zh: '电子邮箱（选填）', ja: 'メール（任意）', vi: 'Email (không bắt buộc)' }, placeholder: 'name@example.com' },
+    ],
+  },
+});

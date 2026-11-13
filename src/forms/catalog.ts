@@ -6,6 +6,7 @@ import { acknowledgmentReport } from './acknowledgment-report';
 import { adoptionDissolutionReport } from './adoption-dissolution-report';
 import { nameChangeReport } from './name-change-report';
 import { surnameChangeReport } from './surname-change-report';
+import { adoptionReport } from './adoption-report';
 
 // 문서 선택 화면에 보이는 서식 목록. 카테고리·제목·설명은 gusring-web과 동일.
 
@@ -122,6 +123,18 @@ export const catalog: CatalogItem[] = [
       vi: 'Văn bản dùng để thay đổi họ và nguồn gốc của con.',
     },
     form: surnameChangeReport,
+  },
+  {
+    formNo: 8,
+    cat: 'FAMILY',
+    desc: {
+      ko: '법적으로 자녀를 입양하여 부모-자식 관계를 맺을 때 사용합니다.',
+      en: 'Used to legally adopt a child.',
+      zh: '法律上收养子女并建立父母子女关系时使用。',
+      ja: '法的に子どもを養子にし, 親子関係を結ぶ時使用します。',
+      vi: 'Sử dụng khi nhận con nuôi hợp pháp.',
+    },
+    form: adoptionReport,
   },
 ];
 
