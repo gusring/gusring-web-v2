@@ -11,6 +11,7 @@ import { fullAdoptionDissolutionReport } from './full-adoption-dissolution-repor
 import { marriageReport } from './marriage-report';
 import { registerCorrection } from './register-correction';
 import { divorceReport } from './divorce-report';
+import { surnameCreationReport } from './surname-creation-report';
 
 // 문서 선택 화면에 보이는 서식 목록. 카테고리·제목·설명은 gusring-web과 동일.
 
@@ -187,6 +188,18 @@ export const catalog: CatalogItem[] = [
       vi: 'Văn bản báo cáo việc chấm dứt quan hệ hôn nhân hợp pháp.',
     },
     form: divorceReport,
+  },
+  {
+    formNo: 13,
+    cat: 'FAMILY',
+    desc: {
+      ko: '새로운 성(姓)을 만들어 등록할 때 제출합니다.',
+      en: 'Submitted when creating and registering a new surname.',
+      zh: '创立并登记新姓氏时提交. ',
+      ja: '新しい氏を作って登録する時に提出します.',
+      vi: 'Nộp khi tạo và đăng ký một họ mới.',
+    },
+    form: surnameCreationReport,
   },
 ];
 
