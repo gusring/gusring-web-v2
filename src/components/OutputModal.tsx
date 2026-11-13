@@ -3,6 +3,7 @@ import { AlertTriangle, Download, PenLine, Printer, ShieldCheck, UserCheck, X } 
 import { FormDef, Lang, Values } from '../forms/types';
 import { tr, UI } from '../i18n';
 import { downloadDataUrl, renderFormPng } from '../lib/exportImage';
+import { track } from '../lib/gusring-api';
 
 interface Props {
   form: FormDef;
@@ -53,14 +54,22 @@ export default function OutputModal({ form, values, lang, missingRequired, onClo
         <div className="flex gap-2">
           <button
             disabled={!png}
-            onClick={() => png && downloadDataUrl(png, `${form.title.ko}.png`)}
+            onClick={() => {
+              if (!png) return;
+              downloadDataUrl(png, `${form.title.ko}.png`);
+              track({ type: 'fill_png_save', lang, formKey: form.id });
+            }}
             className="flex-1 h-12 rounded-2xl bg-line text-gray-900 font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-50"
           >
             <Download size={16} /> {tr(UI.saveImage, lang)}
           </button>
           <button
             disabled={!png}
-            onClick={() => png && onPrint(png)}
+            onClick={() => {
+              if (!png) return;
+              onPrint(png);
+              track({ type: 'fill_print', lang, formKey: form.id });
+            }}
             className="flex-1 h-12 rounded-2xl bg-brand text-brand-950 font-black text-sm flex items-center justify-center gap-2 disabled:opacity-50"
           >
             <Printer size={16} /> {tr(UI.print, lang)}

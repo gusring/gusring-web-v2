@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { findForm } from './forms/catalog';
 import { Lang } from './forms/types';
 import { languages } from './i18n';
+import { track } from './lib/gusring-api';
 import { load, save } from './lib/storage';
 import FormFillView from './pages/FormFillView';
 import Header from './pages/Header';
@@ -61,6 +62,13 @@ export default function App() {
     document.documentElement.lang = lang;
   }, [lang]);
 
+  // 화면 진입 기록 (서식 화면은 FormFillView가 form_view로 보낸다)
+  useEffect(() => {
+    if (route.name === 'landing') track({ type: 'landing_view' });
+    else if (route.name === 'list') track({ type: 'list_view', lang });
+    // 언어를 바꿀 때마다 다시 보내지 않도록 화면이 바뀔 때만
+  }, [route.name]);
+
   const go = useCallback((path: string) => {
     depth.current += 1;
     location.hash = path;
@@ -84,6 +92,7 @@ export default function App() {
         <div className="w-full sm:max-w-md sm:min-h-screen sm:shadow-2xl">
           <LandingView
             onSelect={(l) => {
+              track({ type: 'language_select', lang: l });
               setLang(l);
               go('/list');
             }}

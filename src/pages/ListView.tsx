@@ -1,8 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ChevronRight, FileText, Search } from 'lucide-react';
 import { catalog, categories, CategoryKey } from '../forms/catalog';
 import { FormDef, Lang } from '../forms/types';
 import { tr, UI } from '../i18n';
+import { track } from '../lib/gusring-api';
 
 // gusring-web ListView 그대로 (검색 + 카테고리 칩 + 서식 카드)
 
@@ -22,6 +23,20 @@ export default function ListView({ lang, onFormSelect }: Props) {
       return matchesSearch && (selectedCategory === 'ALL' || cat === selectedCategory);
     });
   }, [searchTerm, selectedCategory, lang]);
+
+  // 검색어는 입력이 멈추고 300ms 뒤 한 번만 기록 (빈 검색어는 보내지 않음)
+  useEffect(() => {
+    const term = searchTerm.trim();
+    if (!term) return;
+    const timer = setTimeout(() => track({ type: 'search', lang, searchTerm: term, resultCount: filtered.length }), 300);
+    return () => clearTimeout(timer);
+    // 결과 수는 검색어가 바뀔 때의 값으로 충분하다
+  }, [searchTerm]);
+
+  const selectCategory = (cat: CategoryKey | 'ALL') => {
+    setSelectedCategory(cat);
+    track({ type: 'category_filter', lang, category: cat });
+  };
 
   return (
     <div className="px-4 py-5 sm:px-5 space-y-5">
@@ -45,11 +60,11 @@ export default function ListView({ lang, onFormSelect }: Props) {
         </div>
 
         <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 animate-slide-up" style={{ animationDelay: '100ms' }}>
-          <button onClick={() => setSelectedCategory('ALL')} className={`toss-chip ${selectedCategory === 'ALL' ? 'active' : ''}`}>
+          <button onClick={() => selectCategory('ALL')} className={`toss-chip ${selectedCategory === 'ALL' ? 'active' : ''}`}>
             {tr(UI.catAll, lang)}
           </button>
           {(Object.keys(categories) as CategoryKey[]).map((key) => (
-            <button key={key} onClick={() => setSelectedCategory(key)} className={`toss-chip ${selectedCategory === key ? 'active' : ''}`}>
+            <button key={key} onClick={() => selectCategory(key)} className={`toss-chip ${selectedCategory === key ? 'active' : ''}`}>
               {tr(categories[key], lang)}
             </button>
           ))}

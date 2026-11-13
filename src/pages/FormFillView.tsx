@@ -7,6 +7,7 @@ import OutputModal from '../components/OutputModal';
 import { isFilled } from '../forms/render';
 import { Box, FieldValue, FormDef, Lang, Values } from '../forms/types';
 import { tr, UI } from '../i18n';
+import { track } from '../lib/gusring-api';
 import { load, remove, save } from '../lib/storage';
 import Header from './Header';
 
@@ -48,6 +49,16 @@ export default function FormFillView({ form, lang, onBack, onLanding, onMap }: P
   const viewerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
   const zoomAnchor = useRef<{ x: number; y: number } | null>(null);
+
+  // ── 이용 기록 (formKey = 서식 id, 칸에 적은 값은 보내지 않는다) ──
+  const formKey = form.id;
+  /** 이 화면에서 처음 값을 바꿨는지 — fill_start는 화면에 들어올 때마다 한 번 */
+  const fillStarted = useRef(false);
+  useEffect(() => {
+    track({ type: 'form_view', lang, formKey });
+    const enteredAt = Date.now();
+    return () => track({ type: 'detail_time', lang, formKey, durationSec: (Date.now() - enteredAt) / 1000 });
+  }, [formKey, lang]);
 
   // ── 저장 & 환경 ────────────────────────────────────────────
   useEffect(() => save(VALUES_KEY, values), [VALUES_KEY, values]);
@@ -142,20 +153,29 @@ export default function FormFillView({ form, lang, onBack, onLanding, onMap }: P
   const [cursor, setCursor] = useState(-1);
 
   const select = useCallback((id: string) => {
+    track({ type: 'field_open', lang, formKey, fieldId: id });
     setActiveId(id);
     setCursor(form.fields.findIndex((f) => f.id === id));
     setListOpen(false);
-  }, [form]);
+  }, [form, lang, formKey]);
 
   const goto = (index: number) => {
     const f = form.fields[index];
     if (f) select(f.id);
   };
 
-  const updateValue = (id: string, value: FieldValue) => setValues((prev) => ({ ...prev, [id]: value }));
+  const updateValue = (id: string, value: FieldValue) => {
+    if (!fillStarted.current) {
+      fillStarted.current = true;
+      track({ type: 'fill_start', lang, formKey });
+    }
+    setValues((prev) => ({ ...prev, [id]: value }));
+  };
 
   const reset = () => {
     if (!window.confirm(tr(UI.resetConfirm, lang))) return;
+    track({ type: 'fill_reset', lang, formKey });
+    fillStarted.current = false;
     setValues({});
     setActiveId(null);
     setCursor(-1);
@@ -181,6 +201,7 @@ export default function FormFillView({ form, lang, onBack, onLanding, onMap }: P
           onBack={onBack}
           onLanding={onLanding}
           onMap={onMap}
+          feedbackContext={{ formKey, fieldId: activeId ?? undefined }}
         />
 
         {/* 전체 항목 · 서류 이름 · 이전 · 다음 */}
@@ -266,7 +287,7 @@ export default function FormFillView({ form, lang, onBack, onLanding, onMap }: P
               <RotateCcw size={16} />
             </button>
             <button
-              onClick={() => { setActiveId(null); setOutputOpen(true); }}
+              onClick={() => { setActiveId(null); setOutputOpen(true); track({ type: 'fill_preview', lang, formKey }); }}
               className="flex-1 h-12 rounded-2xl bg-brand text-brand-950 font-black text-[14px] flex items-center justify-center gap-1.5 shadow-[0_3px_12px_rgba(254,219,2,0.45)] active:scale-[0.97] transition"
             >
               <FileCheck2 size={17} /> {tr(UI.finish, lang)}

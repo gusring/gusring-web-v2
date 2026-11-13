@@ -72,4 +72,20 @@ export const UI = {
   zoomIn:        { ko: '확대', en: 'Zoom in', zh: '放大', ja: '拡大', vi: 'Phóng to' },
   zoomOut:       { ko: '축소', en: 'Zoom out', zh: '缩小', ja: '縮小', vi: 'Thu nhỏ' },
   language:      { ko: '언어', en: 'Language', zh: '语言', ja: '言語', vi: 'Ngôn ngữ' },
+
+  // ── 의견 보내기 (구스링 백엔드) ──
+  feedback:            { ko: '의견 보내기', en: 'Send feedback', zh: '发送意见', ja: '意見を送る', vi: 'Gửi góp ý' },
+  feedbackTypeLabel:   { ko: '무엇에 대한 의견인가요?', en: 'What is this about?', zh: '关于什么的意见？', ja: '何についてのご意見ですか？', vi: 'Góp ý về nội dung gì?' },
+  feedbackGeneral:     { ko: '일반 의견', en: 'General', zh: '一般意见', ja: '一般的な意見', vi: 'Góp ý chung' },
+  feedbackTranslation: { ko: '번역 오류', en: 'Translation', zh: '翻译问题', ja: '翻訳の誤り', vi: 'Lỗi dịch' },
+  feedbackGuide:       { ko: '안내 내용', en: 'Guide content', zh: '说明内容', ja: '案内内容', vi: 'Nội dung hướng dẫn' },
+  feedbackBug:         { ko: '오류 신고', en: 'Bug report', zh: '错误报告', ja: '不具合の報告', vi: 'Báo lỗi' },
+  feedbackPlaceholder: { ko: '불편했던 점이나 고쳐야 할 내용을 적어 주세요.', en: 'Tell us what was confusing or needs fixing.', zh: '请写下不方便或需要修改的地方。', ja: '不便だった点や直すべき内容を書いてください。', vi: 'Hãy cho chúng tôi biết điều gì chưa tiện hoặc cần sửa.' },
+  feedbackPrivacy:     { ko: '이름·주민등록번호 같은 개인정보는 적지 마세요.', en: 'Please do not include personal information such as your name or ID number.', zh: '请勿填写姓名、身份证号等个人信息。', ja: '氏名や住民登録番号などの個人情報は書かないでください。', vi: 'Vui lòng không ghi thông tin cá nhân như họ tên hay số định danh.' },
+  feedbackSend:        { ko: '보내기', en: 'Send', zh: '发送', ja: '送信', vi: 'Gửi' },
+  feedbackSending:     { ko: '보내는 중...', en: 'Sending...', zh: '发送中...', ja: '送信中...', vi: 'Đang gửi...' },
+  feedbackThanks:      { ko: '소중한 의견 감사합니다!', en: 'Thank you for your feedback!', zh: '感谢您的宝贵意见！', ja: '貴重なご意見ありがとうございます！', vi: 'Cảm ơn góp ý của bạn!' },
+  feedbackRateLimited: { ko: '잠시 후 다시 보내 주세요.', en: 'Please try again in a little while.', zh: '请稍后再试。', ja: 'しばらくしてからもう一度お送りください。', vi: 'Vui lòng thử lại sau ít phút.' },
+  feedbackInvalid:     { ko: '내용을 확인해 주세요 (1~2000자).', en: 'Please check your message (1–2000 characters).', zh: '请检查内容（1~2000字）。', ja: '内容をご確認ください（1〜2000文字）。', vi: 'Vui lòng kiểm tra nội dung (1–2000 ký tự).' },
+  feedbackError:       { ko: '보내지 못했어요. 잠시 후 다시 시도해 주세요.', en: 'Could not send. Please try again later.', zh: '发送失败，请稍后再试。', ja: '送信できませんでした。しばらくしてから再度お試しください。', vi: 'Không gửi được. Vui lòng thử lại sau.' },
 } satisfies Record<string, L>;

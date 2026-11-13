@@ -1,12 +1,12 @@
-# 구스링 서식 작성 도우미 (프로토타입)
+# 구스링 버전 2 — 서식 작성 도우미
 
-외국인 주민이 **모국어 안내를 보며 입력하면, 한국어 원본 행정 서식에 바로 기재**되는 로직 프로토타입입니다.
+외국인 주민이 **모국어 안내를 보며 입력하면, 한국어 원본 행정 서식에 바로 기재**되는 구스링 버전 2입니다. ([gusring_prototype](https://github.com/gusring/gusring_prototype)에서 옮겨 왔습니다.)
 첫 대상 서식은 출생신고서([양식 제1호])입니다.
 
 ## 화면 흐름
 `#/` 언어 선택 → `#/list` 문서 선택 → `#/form/birth-report` 서식 작성 (`#/map` 민원실 지도)
 
-언어 선택·문서 선택 화면과 헤더·지도는 [gusring-web](https://github.com/gusring/gusring-web)을 그대로 옮겼습니다. (헤더의 피드백 버튼은 제외)
+언어 선택·문서 선택 화면과 헤더·지도는 [gusring-web](https://github.com/gusring/gusring-web)을 그대로 옮겼습니다. 헤더의 의견 보내기는 구글 폼 대신 구스링 백엔드로 보냅니다.
 처음에 고른 언어로 서식 작성 화면의 안내와 라벨이 모두 표시됩니다.
 
 ## 서식 작성 화면
@@ -21,6 +21,17 @@ npm install
 npm run dev
 ```
 
+로컬 [gusring-server](https://github.com/gusring/gusring-server)에 붙일 때 (기본은 운영 `https://api.gusring.kro.kr`):
+```bash
+VITE_GUSRING_API=http://localhost:4000 npm run dev
+```
+
+## 구스링 백엔드 연결
+`src/lib/gusring-api.ts`는 gusring-server `examples/gusring-api.ts`와 같은 파일입니다 (gusring-web `src/shared/gusring-api.ts`와도 같음). 고칠 때는 원본을 고치고 복사합니다.
+- 이용 기록: 화면 진입·언어 선택·검색·카테고리, 서식 작성 단계(`form_view` `fill_start` `field_open` `fill_preview` `fill_png_save` `fill_print` `fill_reset` `detail_time`)를 `formKey`(서식 id)와 함께 보냅니다. **칸에 적은 값은 보내지 않습니다.**
+- 의견 보내기: 헤더 버튼 → `POST /api/v1/feedbacks`. 서식 화면에서 보내면 서식·칸 id가 같이 갑니다.
+- 운영 서버 CORS에 이 사이트 주소가 등록돼 있어야 의견 보내기가 됩니다 (이용 기록은 text/plain이라 등록 없이도 도착).
+
 ## 구조
 ```
 src/forms/types.ts        서식 정의 타입 (Box, FieldDef, InputSpec, Mark)
@@ -33,6 +44,8 @@ src/forms/catalog.ts      문서 선택 화면 서식 목록 · 카테고리
 src/components/FormSvg    서식 이미지 + 입력값 + 번호 토글 (SVG)
 src/components/FieldSheet 바텀시트 (안내 · 입력 · 칸 미리보기)
 src/lib/exportImage.ts    같은 Mark를 Canvas에 그려 PNG 생성
+src/lib/gusring-api.ts    구스링 백엔드 연결 (이용 기록 · 의견 보내기)
+src/components/FeedbackSheet  의견 보내기 바텀시트
 ```
 
 ## 서식 추가하기
