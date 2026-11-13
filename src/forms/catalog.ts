@@ -9,6 +9,7 @@ import { surnameChangeReport } from './surname-change-report';
 import { adoptionReport } from './adoption-report';
 import { fullAdoptionDissolutionReport } from './full-adoption-dissolution-report';
 import { marriageReport } from './marriage-report';
+import { registerCorrection } from './register-correction';
 
 // 문서 선택 화면에 보이는 서식 목록. 카테고리·제목·설명은 gusring-web과 동일.
 
@@ -161,6 +162,18 @@ export const catalog: CatalogItem[] = [
       vi: 'Là giấy tờ được nộp nhằm đăng ký và được công nhận quan hệ vợ chồng theo pháp luật.',
     },
     form: marriageReport,
+  },
+  {
+    formNo: 11,
+    cat: 'FAMILY',
+    desc: {
+      ko: '가족관계등록부의 잘못된 기재 내용을 수정할 때 사용합니다.',
+      en: 'Used to correct errors in the register.',
+      zh: '修正家族关系登记簿中错误的记载内容时使用。',
+      ja: '家族関係登録簿の誤った記載内容を修正する時に使用します.',
+      vi: 'Sử dụng để sửa các nội dung ghi sai trong sổ đăng ký.',
+    },
+    form: registerCorrection,
   },
 ];
 
