@@ -13,6 +13,7 @@ import { registerCorrection } from './register-correction';
 import { divorceReport } from './divorce-report';
 import { surnameCreationReport } from './surname-creation-report';
 import { sealProtectionRequest } from './seal-protection-request';
+import { sealStatusReport } from './seal-status-report';
 
 // 문서 선택 화면에 보이는 서식 목록. 카테고리·제목·설명은 gusring-web과 동일.
 
@@ -215,6 +216,34 @@ export const catalog: CatalogItem[] = [
       vi: 'Ngăn người khác sử dụng con dấu của mình bằng cách hạn chế hoặc hủy việc cấp giấy tờ cho người khác.',
     },
     form: sealProtectionRequest,
+  },
+  {
+    formNo: 24,
+    cat: 'ID_SEAL',
+    desc: {
+      ko: '새로운 인감을 등록하거나 기존 인감을 변경할 때 사용합니다.',
+      en: 'Used to register or change a personal seal.',
+      zh: '登记新印章或变更现有印章时使用. ',
+      ja: '新しい印鑑を登録したり既存の印鑑を変更する時に使用します.',
+      vi: 'Sử dụng khi đăng ký con dấu cá nhân mới.',
+    },
+    form: sealStatusReport,
+    // 26번과 같은 서식 — 「신고사항의 변경」을 골라 둔 채로 연다
+    key: 'seal-change-report',
+    title: { ko: '인감(변경)신고서(서면)', en: 'Seal Registration', zh: '印章(变更)申报', ja: '印鑑(変更)届', vi: 'Báo cáo thay đổi con dấu cá nhân' },
+    preset: { reportType: { choice: 'change' } },
+  },
+  {
+    formNo: 26,
+    cat: 'ID_SEAL',
+    desc: {
+      ko: '인감의 말소, 부활, 사망 신고 등을 할 때 제출합니다.',
+      en: 'Submitted for cancellation or restoration of a seal.',
+      zh: '进行印章的注销、恢复、死亡申报等. ',
+      ja: '印鑑の抹消, 復活, 死亡届などをする時に提出します.',
+      vi: 'Nộp khi báo cáo hủy hoặc khôi phục con dấu cá nhân.',
+    },
+    form: sealStatusReport,
   },
 ];
 
