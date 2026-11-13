@@ -8,6 +8,7 @@ import { nameChangeReport } from './name-change-report';
 import { surnameChangeReport } from './surname-change-report';
 import { adoptionReport } from './adoption-report';
 import { fullAdoptionDissolutionReport } from './full-adoption-dissolution-report';
+import { marriageReport } from './marriage-report';
 
 // 문서 선택 화면에 보이는 서식 목록. 카테고리·제목·설명은 gusring-web과 동일.
 
@@ -148,6 +149,18 @@ export const catalog: CatalogItem[] = [
       vi: 'Dùng để chấm dứt quan hệ con nuôi đặc biệt về mặt pháp lý.',
     },
     form: fullAdoptionDissolutionReport,
+  },
+  {
+    formNo: 10,
+    cat: 'FAMILY',
+    desc: {
+      ko: '법적으로 부부가 되었음을 공인받기 위해 제출하는 서류입니다.',
+      en: 'Submitted to be officially recognized as a married couple.',
+      zh: '为了获得法律上成为夫妇的公认而提交的文件。',
+      ja: '法的に夫婦になったことを公認されるために提出する書類です.',
+      vi: 'Là giấy tờ được nộp nhằm đăng ký và được công nhận quan hệ vợ chồng theo pháp luật.',
+    },
+    form: marriageReport,
   },
 ];
 
