@@ -68,7 +68,12 @@ export type InputSpec =
       extra?: Part & { when?: string[] };
     }
   | { kind: 'country'; box: Box; allowKorea?: boolean }
-  | { kind: 'idnum'; front: Box; back: Box };
+  /**
+   * front·back: 가운데 「-」이 인쇄된 칸
+   * box: 「-」이 없는 칸 — 「901231-1234567」로 한 줄에
+   */
+  | { kind: 'idnum'; front: Box; back: Box; box?: undefined }
+  | { kind: 'idnum'; box: Box; front?: undefined; back?: undefined };
 
 /** 다른 항목 값을 복사해 오는 단축 버튼 */
 export interface CopySource {
@@ -92,6 +97,8 @@ export interface FieldDef {
   copyFrom?: CopySource[];
   /** 'margin': 번호 토글을 칸 안이 아닌 표 오른쪽 여백에 표시 */
   badge?: 'margin';
+  /** 번호 토글 위치를 직접 지정 (칸이 좁아 왼쪽 위에 두면 선택지를 가릴 때) */
+  badgeAt?: Point;
   /** 이 칸이 있는 쪽 (1부터, 없으면 1쪽). 좌표는 그 쪽 이미지 기준 */
   page?: number;
 }

@@ -7,6 +7,11 @@ import { adoptionDissolutionReport } from './adoption-dissolution-report';
 import { nameChangeReport } from './name-change-report';
 import { surnameChangeReport } from './surname-change-report';
 import { adoptionReport } from './adoption-report';
+import { fullAdoptionDissolutionReport } from './full-adoption-dissolution-report';
+import { marriageReport } from './marriage-report';
+import { registerCorrection } from './register-correction';
+import { divorceReport } from './divorce-report';
+import { surnameCreationReport } from './surname-creation-report';
 
 // 문서 선택 화면에 보이는 서식 목록. 카테고리·제목·설명은 gusring-web과 동일.
 
@@ -135,6 +140,66 @@ export const catalog: CatalogItem[] = [
       vi: 'Sử dụng khi nhận con nuôi hợp pháp.',
     },
     form: adoptionReport,
+  },
+  {
+    formNo: 9,
+    cat: 'FAMILY',
+    desc: {
+      ko: '친양자 관계를 법적으로 해소하기 위해 작성합니다.',
+      en: 'Written to legally dissolve a full adoption relationship.',
+      zh: '为了法律上解除亲养子关系而填写。',
+      ja: '特別養子関係を法的に解消するために作成します.',
+      vi: 'Dùng để chấm dứt quan hệ con nuôi đặc biệt về mặt pháp lý.',
+    },
+    form: fullAdoptionDissolutionReport,
+  },
+  {
+    formNo: 10,
+    cat: 'FAMILY',
+    desc: {
+      ko: '법적으로 부부가 되었음을 공인받기 위해 제출하는 서류입니다.',
+      en: 'Submitted to be officially recognized as a married couple.',
+      zh: '为了获得法律上成为夫妇的公认而提交的文件。',
+      ja: '法的に夫婦になったことを公認されるために提出する書類です.',
+      vi: 'Là giấy tờ được nộp nhằm đăng ký và được công nhận quan hệ vợ chồng theo pháp luật.',
+    },
+    form: marriageReport,
+  },
+  {
+    formNo: 11,
+    cat: 'FAMILY',
+    desc: {
+      ko: '가족관계등록부의 잘못된 기재 내용을 수정할 때 사용합니다.',
+      en: 'Used to correct errors in the register.',
+      zh: '修正家族关系登记簿中错误的记载内容时使用。',
+      ja: '家族関係登録簿の誤った記載内容を修正する時に使用します.',
+      vi: 'Sử dụng để sửa các nội dung ghi sai trong sổ đăng ký.',
+    },
+    form: registerCorrection,
+  },
+  {
+    formNo: 12,
+    cat: 'FAMILY',
+    desc: {
+      ko: '법적 혼인 관계를 해소했음을 신고하는 서류입니다.',
+      en: 'Document reporting the dissolution of a legal marriage.',
+      zh: '申报法律婚姻关系已解除的文件。',
+      ja: '法的婚姻関係を解消したことを届け出る書類です。',
+      vi: 'Văn bản báo cáo việc chấm dứt quan hệ hôn nhân hợp pháp.',
+    },
+    form: divorceReport,
+  },
+  {
+    formNo: 13,
+    cat: 'FAMILY',
+    desc: {
+      ko: '새로운 성(姓)을 만들어 등록할 때 제출합니다.',
+      en: 'Submitted when creating and registering a new surname.',
+      zh: '创立并登记新姓氏时提交. ',
+      ja: '新しい氏を作って登録する時に提出します.',
+      vi: 'Nộp khi tạo và đăng ký một họ mới.',
+    },
+    form: surnameCreationReport,
   },
 ];
 

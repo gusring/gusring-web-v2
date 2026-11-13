@@ -10,6 +10,9 @@ export const FORM_FONT = '"Pretendard Variable", Pretendard, "Apple SD Gothic Ne
 export const FORM_FONT_WEIGHT = 600;
 export const INK = '#1d3c9c';
 
+/** ○·✓ 크기는 1190px 폭 서식 기준 — 좁은 쪽(841px 등)에서는 그만큼 줄인다 */
+export const markScale = (pageWidth: number) => Math.min(1, pageWidth / 1190);
+
 const BASE_SIZE = 19;
 const MIN_SIZE = 8;
 
@@ -40,7 +43,10 @@ const splitTwo = (v: string): string[] | null => {
   const mid = v.length / 2;
   let best = -1;
   for (let i = 0; i < v.length; i++) if (v[i] === ' ' && (best < 0 || Math.abs(i - mid) < Math.abs(best - mid))) best = i;
-  return best > 0 ? [v.slice(0, best).trim(), v.slice(best + 1).trim()] : null;
+  if (best > 0) return [v.slice(0, best).trim(), v.slice(best + 1).trim()];
+  // 띄어쓰기가 없는 이메일은 @ 앞에서 나눈다
+  const at = v.indexOf('@');
+  return at > 0 ? [v.slice(0, at), v.slice(at)] : null;
 };
 
 const text = (box: Box, value: string | undefined): Mark[] => {
@@ -95,6 +101,7 @@ export function marksFor(field: FieldDef, value: FieldValue | undefined): Mark[]
     case 'country':
       return text(input.box, countryKo(value));
     case 'idnum':
+      if (input.box) return text(input.box, [value.front, value.back].filter((v) => v?.trim()).join('-'));
       return [...text(input.front, value.front), ...text(input.back, value.back)];
   }
 }

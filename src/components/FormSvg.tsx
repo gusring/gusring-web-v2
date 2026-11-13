@@ -1,4 +1,4 @@
-import { extraVisible, FORM_FONT, FORM_FONT_WEIGHT, INK, lineY, marksFor } from '../forms/render';
+import { extraVisible, FORM_FONT, FORM_FONT_WEIGHT, INK, lineY, markScale, marksFor } from '../forms/render';
 import { Box, FieldDef, FieldValue, FormDef, FormPage, Mark, pageIndex, Point, Values } from '../forms/types';
 
 // ─────────────────────────────────────────────────────────────
@@ -17,6 +17,7 @@ const marginX = (page: FormPage) => page.marginX ?? page.width - 118;
 export function badgePoint(field: FieldDef, page: FormPage): Point {
   const a = field.area;
   const cy = a.h > 50 ? a.y + BADGE_R + 2 : a.y + a.h / 2;
+  if (field.badgeAt) return field.badgeAt;
   if (field.badge === 'margin') return { x: marginX(page), y: a.y + a.h / 2 };
   return { x: a.x + BADGE_R + 2, y: cy };
 }
@@ -52,7 +53,7 @@ export function fieldCrop(field: FieldDef, form: FormDef, value?: FieldValue): B
   return { x, y: a.y - 10, w, h };
 }
 
-export function MarkView({ mark }: { mark: Mark }) {
+export function MarkView({ mark, scale = 1 }: { mark: Mark; scale?: number }) {
   switch (mark.kind) {
     case 'text': {
       const { box } = mark;
@@ -80,14 +81,14 @@ export function MarkView({ mark }: { mark: Mark }) {
       );
     }
     case 'circle':
-      return <circle cx={mark.at.x} cy={mark.at.y} r={15} fill="none" stroke={INK} strokeWidth={2.8} />;
+      return <circle cx={mark.at.x} cy={mark.at.y} r={15 * scale} fill="none" stroke={INK} strokeWidth={2.8 * scale} />;
     case 'check':
       return (
         <path
-          d={`M${mark.at.x - 8} ${mark.at.y} L${mark.at.x - 2} ${mark.at.y + 7} L${mark.at.x + 10} ${mark.at.y - 10}`}
+          d={`M${mark.at.x - 8 * scale} ${mark.at.y} L${mark.at.x - 2 * scale} ${mark.at.y + 7 * scale} L${mark.at.x + 10 * scale} ${mark.at.y - 10 * scale}`}
           fill="none"
           stroke={INK}
-          strokeWidth={3.2}
+          strokeWidth={3.2 * scale}
           strokeLinecap="round"
           strokeLinejoin="round"
         />
@@ -163,7 +164,7 @@ export default function FormSvg({ form, page = 0, values, guides, highlightId, c
 
       {/* 입력값 */}
       <g pointerEvents="none">
-        {fields.flatMap(({ f }) => marksFor(f, values[f.id]).map((m, i) => <MarkView key={`${f.id}-${i}`} mark={m} />))}
+        {fields.flatMap(({ f }) => marksFor(f, values[f.id]).map((m, i) => <MarkView key={`${f.id}-${i}`} mark={m} scale={markScale(pg.width)} />))}
       </g>
 
       {/* 번호 토글 */}
