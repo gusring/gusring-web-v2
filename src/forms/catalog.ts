@@ -18,6 +18,10 @@ import { sealCertificateDelegation } from './seal-certificate-delegation';
 import { idCardLossReport } from './id-card-loss-report';
 import { idCardIssueApplication } from './id-card-issue-application';
 import { idCardReissueApplication } from './id-card-reissue-application';
+import { residenceAddressChange } from './residence-address-change';
+import { residentRecordRequest } from './resident-record-request';
+import { residentRegistrationReport } from './resident-registration-report';
+import { residentRecordDelegation } from './resident-record-delegation';
 
 // 문서 선택 화면에 보이는 서식 목록. 카테고리·제목·설명은 gusring-web과 동일.
 
@@ -210,6 +214,18 @@ export const catalog: CatalogItem[] = [
     form: surnameCreationReport,
   },
   {
+    formNo: 21,
+    cat: 'RESIDENCE',
+    desc: {
+      ko: '국내 거주지를 옮겼을 때 새로운 주소지를 신고합니다.',
+      en: 'Report a new address when moving within Korea.',
+      zh: '国内居住地搬迁时申报新住所. ',
+      ja: '国内の居住地を移した時に新しい住所地を届け出ます.',
+      vi: 'Báo cáo địa chỉ mới khi chuyển nơi cư trú trong nước.',
+    },
+    form: residenceAddressChange,
+  },
+  {
     formNo: 22,
     cat: 'ID_SEAL',
     desc: {
@@ -262,6 +278,30 @@ export const catalog: CatalogItem[] = [
     form: sealStatusReport,
   },
   {
+    formNo: 31,
+    cat: 'RESIDENCE',
+    desc: {
+      ko: '주민등록 등본이나 초본을 발급받기 위해 신청합니다.',
+      en: 'Request to issue a resident register copy.',
+      zh: '领取居民登记誊本或抄本. ',
+      ja: '住民登録の謄本や抄本を発行してもらうために申請します.',
+      vi: 'Đăng ký lấy bản sao sổ hộ khẩu.',
+    },
+    form: residentRecordRequest,
+  },
+  {
+    formNo: 32,
+    cat: 'RESIDENCE',
+    desc: {
+      ko: '전입, 전출 등 주민등록 사항을 신고할 때 사용합니다.',
+      en: 'Used for resident registration like moving in/out.',
+      zh: '申报迁入、迁出等居民登记事项. ',
+      ja: '転入, 転出など住民登録事項を届け出る時に使用します.',
+      vi: 'Báo cáo các vấn đề đăng ký cư trú.',
+    },
+    form: residentRegistrationReport,
+  },
+  {
     formNo: 33,
     cat: 'ID_SEAL',
     desc: {
@@ -272,6 +312,18 @@ export const catalog: CatalogItem[] = [
       vi: 'Báo cáo khi mất thẻ căn cước.',
     },
     form: idCardLossReport,
+  },
+  {
+    formNo: 34,
+    cat: 'RESIDENCE',
+    desc: {
+      ko: '주민등록 등·초본 발급을 대리인에게 위임할 때 작성합니다.',
+      en: 'To delegate resident register issuance.',
+      zh: '将居民登记誊·抄本发放委托给代理人. ',
+      ja: '住民登録謄・抄本の発行を代理人に委任する時に作成します.',
+      vi: 'Ủy quyền lấy bản sao sổ hộ khẩu.',
+    },
+    form: residentRecordDelegation,
   },
   {
     formNo: 35,
