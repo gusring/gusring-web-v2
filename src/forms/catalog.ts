@@ -19,6 +19,7 @@ import { idCardLossReport } from './id-card-loss-report';
 import { idCardIssueApplication } from './id-card-issue-application';
 import { idCardReissueApplication } from './id-card-reissue-application';
 import { residenceAddressChange } from './residence-address-change';
+import { residentRecordRequest } from './resident-record-request';
 
 // 문서 선택 화면에 보이는 서식 목록. 카테고리·제목·설명은 gusring-web과 동일.
 
@@ -273,6 +274,18 @@ export const catalog: CatalogItem[] = [
       vi: 'Nộp khi báo cáo hủy hoặc khôi phục con dấu cá nhân.',
     },
     form: sealStatusReport,
+  },
+  {
+    formNo: 31,
+    cat: 'RESIDENCE',
+    desc: {
+      ko: '주민등록 등본이나 초본을 발급받기 위해 신청합니다.',
+      en: 'Request to issue a resident register copy.',
+      zh: '领取居民登记誊本或抄本. ',
+      ja: '住民登録の謄本や抄本を発行してもらうために申請します.',
+      vi: 'Đăng ký lấy bản sao sổ hộ khẩu.',
+    },
+    form: residentRecordRequest,
   },
   {
     formNo: 33,
