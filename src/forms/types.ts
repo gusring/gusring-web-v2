@@ -85,17 +85,31 @@ export interface FieldDef {
   copyFrom?: CopySource[];
   /** 'margin': 번호 토글을 칸 안이 아닌 표 오른쪽 여백에 표시 */
   badge?: 'margin';
+  /** 이 칸이 있는 쪽 (1부터, 없으면 1쪽). 좌표는 그 쪽 이미지 기준 */
+  page?: number;
+}
+
+/** 서식 한 쪽 = 원본 이미지 한 장 */
+export interface FormPage {
+  image: string;
+  width: number;
+  height: number;
+  /** badge: 'margin' 번호를 놓을 x (없으면 오른쪽 끝에서 118px 안쪽) */
+  marginX?: number;
 }
 
 export interface FormDef {
   id: string;
   title: L;
-  image: string;
-  width: number;
-  height: number;
+  /** 쪽 순서대로. 1쪽짜리 서식은 한 장 */
+  pages: FormPage[];
   sections: { id: string; label: L }[];
+  /** 번호·이전/다음 순서. 쪽 순서 → 서식 위에서 아래 순으로 둔다 */
   fields: FieldDef[];
 }
+
+/** 칸이 있는 쪽의 번호 (0부터) */
+export const pageIndex = (field: FieldDef) => (field.page ?? 1) - 1;
 
 /** 항목 하나의 입력값. key는 InputSpec 종류별로 다르다. */
 export type FieldValue = Record<string, string>;

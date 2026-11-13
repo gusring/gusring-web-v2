@@ -2,7 +2,7 @@ import { Box, ChoiceOption, FieldDef, FormDef, L, Part } from './types';
 
 // ─────────────────────────────────────────────────────────────
 // 출생신고서 [양식 제1호] — 가족관계등록예규 서식
-// 좌표는 public/forms/birth_ko.png (1190×1682) 기준.
+// 좌표는 public/forms/birth-report_ko.png (1190×1682) 기준.
 // 안내 문구는 서식 뒷면 「작성방법」을 바탕으로 작성.
 // ※ 외국인 이름 한글 표기 기준은 구청 확인 필요 (TODO)
 // ─────────────────────────────────────────────────────────────
@@ -591,9 +591,7 @@ const fields: FieldDef[] = [
 export const birthReport: FormDef = {
   id: 'birth-report',
   title: { ko: '출생신고서', en: 'Birth Report', zh: '出生申报书', ja: '出生届', vi: 'Giấy khai sinh' },
-  image: '/forms/birth_ko.png',
-  width: 1190,
-  height: 1682,
+  pages: [{ image: '/forms/birth-report_ko.png', width: 1190, height: 1682 }],
   sections: [
     { id: 'meta',      label: { ko: '신고일',         en: 'Report date',       zh: '申报日期',     ja: '届出日',       vi: 'Ngày khai báo' } },
     { id: 'child',     label: { ko: '① 출생자',       en: '① The baby',        zh: '① 出生者',     ja: '① 出生子',     vi: '① Em bé' } },

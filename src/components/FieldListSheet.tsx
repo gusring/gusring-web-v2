@@ -1,6 +1,6 @@
 import { X } from 'lucide-react';
 import { isFilled, summaryKo } from '../forms/render';
-import { FormDef, Lang, Values } from '../forms/types';
+import { FormDef, Lang, pageIndex, Values } from '../forms/types';
 import { tr, UI } from '../i18n';
 
 interface Props {
@@ -46,9 +46,16 @@ export default function FieldListSheet({ form, values, lang, onSelect, onClose }
                           {i + 1}
                         </span>
                         <span className="flex-1 min-w-0">
-                          <span className="block text-[14px] font-bold text-gray-900 truncate">
-                            {tr(f.label, lang)}
-                            {f.required && <span className="text-red-500"> *</span>}
+                          <span className="flex items-center gap-1.5">
+                            <span className="text-[14px] font-bold text-gray-900 truncate">
+                              {tr(f.label, lang)}
+                              {f.required && <span className="text-red-500"> *</span>}
+                            </span>
+                            {form.pages.length > 1 && (
+                              <span className="shrink-0 text-[10px] font-black px-1.5 py-0.5 rounded-md bg-line text-sub">
+                                {tr(UI.pageOf, lang, { n: pageIndex(f) + 1, total: form.pages.length })}
+                              </span>
+                            )}
                           </span>
                           <span className={`block text-[12px] truncate ${filled ? 'text-ink font-semibold' : 'text-hint'}`}>
                             {filled ? summaryKo(f, values[f.id]) : tr(UI.empty, lang)}
