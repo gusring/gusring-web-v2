@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
-import { findForm } from './forms/catalog';
+import { entryKey, findEntry } from './forms/catalog';
 import { Lang } from './forms/types';
 import { languages } from './i18n';
 import { track } from './lib/gusring-api';
@@ -103,11 +103,11 @@ export default function App() {
   }
 
   if (route.name === 'form') {
-    const form = findForm(route.id);
-    if (form) {
+    const entry = findEntry(route.id);
+    if (entry) {
       return (
         <div className="w-full sm:max-w-md sm:mx-auto sm:shadow-2xl">
-          <FormFillView key={form.id} form={form} lang={lang} onBack={back} onLanding={toLanding} onMap={toMap} />
+          <FormFillView key={entryKey(entry)} entry={entry} lang={lang} onBack={back} onLanding={toLanding} onMap={toMap} />
         </div>
       );
     }
@@ -126,7 +126,7 @@ export default function App() {
         {route.name === 'map' ? (
           <OfficeMap lang={lang} />
         ) : (
-          <ListView lang={lang} onFormSelect={(form) => go(`/form/${form.id}`)} />
+          <ListView lang={lang} onFormSelect={(entry) => go(`/form/${entryKey(entry)}`)} />
         )}
       </main>
     </Shell>

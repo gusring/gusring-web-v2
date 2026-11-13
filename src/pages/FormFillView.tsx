@@ -2,10 +2,11 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { ChevronLeft, ChevronRight, Eye, EyeOff, FileCheck2, Menu, Minus, Plus, RotateCcw, X } from 'lucide-react';
 import FieldListSheet from '../components/FieldListSheet';
 import FieldSheet from '../components/FieldSheet';
-import FormSvg, { fieldCrop } from '../components/FormSvg';
+import FormSvg, { fieldCrop, pageOf } from '../components/FormSvg';
 import OutputModal from '../components/OutputModal';
 import { isFilled } from '../forms/render';
-import { Box, FieldValue, FormDef, Lang, Values } from '../forms/types';
+import { CatalogItem, entryKey, entryTitle } from '../forms/catalog';
+import { Box, FieldValue, Lang, pageIndex, Values } from '../forms/types';
 import { tr, UI } from '../i18n';
 import { flush, track } from '../lib/gusring-api';
 import { load, remove, save } from '../lib/storage';
@@ -17,7 +18,8 @@ const MIN_ZOOM = 1;
 const MAX_ZOOM = 4;
 
 interface Props {
-  form: FormDef;
+  /** 문서 선택 화면의 항목 (서식 + v1 서식 번호) */
+  entry: CatalogItem;
   /** 언어 선택 화면에서 고른 언어. 안내·라벨이 모두 이 언어로 나온다. */
   lang: Lang;
   onBack: () => void;
@@ -25,15 +27,22 @@ interface Props {
   onMap: () => void;
 }
 
-export default function FormFillView({ form, lang, onBack, onLanding, onMap }: Props) {
-  const VALUES_KEY = `gusring.${form.id}.values`;
+export default function FormFillView({ entry, lang, onBack, onLanding, onMap }: Props) {
+  const form = entry.form;
+  const title = entryTitle(entry);
+  const VALUES_KEY = `gusring.${entryKey(entry)}.values`;
   const [values, setValues] = useState<Values>(() => load<Values>(VALUES_KEY, {}));
   const [activeId, setActiveId] = useState<string | null>(null);
   const [zoom, setZoom] = useState(1);
   const [showGuides, setShowGuides] = useState(true);
   const [listOpen, setListOpen] = useState(false);
   const [outputOpen, setOutputOpen] = useState(false);
-  const [printSrc, setPrintSrc] = useState<string | null>(null);
+  /** 인쇄할 쪽 이미지 (쪽마다 A4 한 장) */
+  const [printPages, setPrintPages] = useState<string[] | null>(null);
+  /** 보고 있는 쪽 (0부터) */
+  const [page, setPage] = useState(0);
+  const pg = form.pages[page] ?? form.pages[0];
+  const multiPage = form.pages.length > 1;
   const [tipOpen, setTipOpen] = useState(() => !load<boolean>(TIP_KEY, false));
   const [, setFontTick] = useState(0);
   /** 열려 있는 바텀시트 높이 (px) */
@@ -50,18 +59,19 @@ export default function FormFillView({ form, lang, onBack, onLanding, onMap }: P
   const canvasRef = useRef<HTMLDivElement>(null);
   const zoomAnchor = useRef<{ x: number; y: number } | null>(null);
 
-  // ── 이용 기록 (formKey = 서식 id, 칸에 적은 값은 보내지 않는다) ──
+  // ── 이용 기록 (formKey = 서식 id, formNo = v1 서식 번호, 칸에 적은 값은 보내지 않는다) ──
   const formKey = form.id;
+  const formNo = entry.formNo;
   /** 이 화면에서 처음 값을 바꿨는지 — fill_start는 화면에 들어올 때마다 한 번 */
   const fillStarted = useRef(false);
   useEffect(() => {
-    track({ type: 'form_view', lang, formKey });
+    track({ type: 'form_view', lang, formKey, formNo });
     let enteredAt = Date.now();
     let sent = false;
     const sendTime = () => {
       if (sent) return;
       sent = true;
-      track({ type: 'detail_time', lang, formKey, durationSec: (Date.now() - enteredAt) / 1000 });
+      track({ type: 'detail_time', lang, formKey, formNo, durationSec: (Date.now() - enteredAt) / 1000 });
     };
     // 탭을 바로 닫으면 화면이 내려가지 않으므로 페이지를 떠날 때도 보낸다
     const onPageHide = () => {
@@ -81,7 +91,7 @@ export default function FormFillView({ form, lang, onBack, onLanding, onMap }: P
       window.removeEventListener('pageshow', onPageShow);
       sendTime();
     };
-  }, [formKey, lang]);
+  }, [formKey, formNo, lang]);
 
   // ── 저장 & 환경 ────────────────────────────────────────────
   useEffect(() => save(VALUES_KEY, values), [VALUES_KEY, values]);
@@ -121,7 +131,7 @@ export default function FormFillView({ form, lang, onBack, onLanding, onMap }: P
     const focus = pendingFocus.current;
     if (focus) {
       // 확대된 칸을 가로 가운데, 시트 위 남은 공간의 세로 가운데에 놓는다
-      const scale = c.clientWidth / form.width;
+      const scale = c.clientWidth / pg.width;
       const w = focus.box.w * scale;
       const h = focus.box.h * scale;
       v.scrollLeft = w <= v.clientWidth ? focus.box.x * scale - (v.clientWidth - w) / 2 : focus.box.x * scale - 12;
@@ -135,7 +145,7 @@ export default function FormFillView({ form, lang, onBack, onLanding, onMap }: P
     v.scrollLeft = a.x * v.scrollWidth - v.clientWidth / 2;
     v.scrollTop = a.y * v.scrollHeight - v.clientHeight / 2;
     zoomAnchor.current = null;
-  }, [zoom, scrollTick, form]);
+  }, [zoom, scrollTick, pg]);
 
   /** 작성 중인 칸을 바텀시트 위 공간에 꽉 차게 확대 */
   const focusField = useCallback((id: string, sheetPx: number) => {
@@ -143,10 +153,11 @@ export default function FormFillView({ form, lang, onBack, onLanding, onMap }: P
     const f = form.fields.find((x) => x.id === id);
     if (!v || !f) return;
     const box = fieldCrop(f, form, valuesRef.current[id]);
+    const { width } = pageOf(form, f);
     const vw = v.clientWidth;
     const visibleH = Math.max(100, window.innerHeight - sheetPx - v.getBoundingClientRect().top);
-    const byWidth = ((vw - 24) / vw) * (form.width / box.w);
-    const byHeight = (visibleH * 0.85) / ((box.h / form.width) * vw);
+    const byWidth = ((vw - 24) / vw) * (width / box.w);
+    const byHeight = (visibleH * 0.85) / ((box.h / width) * vw);
     pendingFocus.current = { box, visibleH };
     setZoom(+Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, Math.min(byWidth, byHeight))).toFixed(3));
     setScrollTick((t) => t + 1);
@@ -167,7 +178,7 @@ export default function FormFillView({ form, lang, onBack, onLanding, onMap }: P
     lastActive.current = null;
     setSheetH(0);
     if (!f || !viewerRef.current) return;
-    pendingFocus.current = { box: { x: 0, y: f.area.y, w: form.width, h: f.area.h }, visibleH: viewerRef.current.clientHeight };
+    pendingFocus.current = { box: { x: 0, y: f.area.y, w: pageOf(form, f).width, h: f.area.h }, visibleH: viewerRef.current.clientHeight };
     setZoom(1);
     setScrollTick((t) => t + 1);
   }, [activeId, form]);
@@ -176,16 +187,28 @@ export default function FormFillView({ form, lang, onBack, onLanding, onMap }: P
   const [cursor, setCursor] = useState(-1);
 
   const select = useCallback((id: string) => {
+    const index = form.fields.findIndex((f) => f.id === id);
+    if (index < 0) return;
+    // 다른 쪽의 칸이면 그 쪽으로 넘긴다
+    setPage(pageIndex(form.fields[index]));
     setActiveId(id);
-    setCursor(form.fields.findIndex((f) => f.id === id));
+    setCursor(index);
     setListOpen(false);
   }, [form]);
 
+  /** 쪽 전환 버튼 — 새 쪽의 맨 위부터 100%로 */
+  const showPage = (next: number) => {
+    if (next < 0 || next >= form.pages.length) return;
+    setPage(next);
+    setZoom(1);
+    if (viewerRef.current) viewerRef.current.scrollTo({ top: 0, left: 0 });
+  };
+
   /** 서식 위 번호나 전체 항목에서 직접 고른 칸만 field_open으로 센다 (이전·다음으로 넘긴 칸은 세지 않음) */
   const openField = useCallback((id: string) => {
-    track({ type: 'field_open', lang, formKey, fieldId: id });
+    track({ type: 'field_open', lang, formKey, formNo, fieldId: id });
     select(id);
-  }, [select, lang, formKey]);
+  }, [select, lang, formKey, formNo]);
 
   const goto = (index: number) => {
     const f = form.fields[index];
@@ -195,14 +218,14 @@ export default function FormFillView({ form, lang, onBack, onLanding, onMap }: P
   const updateValue = (id: string, value: FieldValue) => {
     if (!fillStarted.current) {
       fillStarted.current = true;
-      track({ type: 'fill_start', lang, formKey });
+      track({ type: 'fill_start', lang, formKey, formNo });
     }
     setValues((prev) => ({ ...prev, [id]: value }));
   };
 
   const reset = () => {
     if (!window.confirm(tr(UI.resetConfirm, lang))) return;
-    track({ type: 'fill_reset', lang, formKey });
+    track({ type: 'fill_reset', lang, formKey, formNo });
     fillStarted.current = false;
     setValues({});
     setActiveId(null);
@@ -210,16 +233,26 @@ export default function FormFillView({ form, lang, onBack, onLanding, onMap }: P
     remove(VALUES_KEY);
   };
 
-  // ── 인쇄 ───────────────────────────────────────────────────
+  // ── 인쇄 (쪽마다 A4 한 장) ────────────────────────────────
   useEffect(() => {
-    if (!printSrc) return;
-    const after = () => setPrintSrc(null);
+    if (!printPages) return;
+    let alive = true;
+    const after = () => setPrintPages(null);
     window.addEventListener('afterprint', after, { once: true });
-    const img = new Image();
-    img.onload = () => window.print();
-    img.src = printSrc;
-    return () => window.removeEventListener('afterprint', after);
-  }, [printSrc]);
+    const loaded = printPages.map(
+      (src) =>
+        new Promise<void>((resolve) => {
+          const img = new Image();
+          img.onload = img.onerror = () => resolve();
+          img.src = src;
+        }),
+    );
+    Promise.all(loaded).then(() => alive && window.print());
+    return () => {
+      alive = false;
+      window.removeEventListener('afterprint', after);
+    };
+  }, [printPages]);
 
   return (
     <>
@@ -229,14 +262,14 @@ export default function FormFillView({ form, lang, onBack, onLanding, onMap }: P
           onBack={onBack}
           onLanding={onLanding}
           onMap={onMap}
-          feedbackContext={{ formKey, fieldId: activeId ?? undefined }}
+          feedbackContext={{ formKey, formNo, fieldId: activeId ?? undefined }}
         />
 
         {/* 전체 항목 · 서류 이름 · 이전 · 다음 */}
         <div className="relative shrink-0 h-12 px-3 flex items-center gap-1 bg-white border-b border-line">
           <div className="absolute left-1/2 -translate-x-1/2 max-w-[calc(100%-200px)] text-center pointer-events-none">
-            <h1 className="font-black text-[15px] leading-tight truncate text-gusring-text">{tr(form.title, lang)}</h1>
-            {lang !== 'ko' && <p className="text-[10px] font-bold leading-tight truncate text-hint">{form.title.ko}</p>}
+            <h1 className="font-black text-[15px] leading-tight truncate text-gusring-text">{tr(title, lang)}</h1>
+            {lang !== 'ko' && <p className="text-[10px] font-bold leading-tight truncate text-hint">{title.ko}</p>}
           </div>
           <button onClick={() => setListOpen(true)} className="h-10 w-10 rounded-xl text-gusring-text flex items-center justify-center active:bg-line transition" aria-label={tr(UI.allFields, lang)}>
             <Menu size={20} />
@@ -269,6 +302,7 @@ export default function FormFillView({ form, lang, onBack, onLanding, onMap }: P
             >
               <FormSvg
                 form={form}
+                page={page}
                 values={values}
                 className="block w-full h-auto select-none"
                 guides={showGuides ? { activeId, filled, onSelect: openField } : undefined}
@@ -286,6 +320,21 @@ export default function FormFillView({ form, lang, onBack, onLanding, onMap }: P
                 aria-label={tr(UI.close, lang)}
               >
                 <X size={14} />
+              </button>
+            </div>
+          )}
+
+          {/* 쪽 전환 (여러 쪽 서식만) */}
+          {multiPage && !activeField && (
+            <div className="absolute left-3 bottom-3 h-10 rounded-full bg-white shadow-card border border-line flex items-center overflow-hidden">
+              <button onClick={() => showPage(page - 1)} disabled={page === 0} className="w-10 h-10 flex items-center justify-center text-gray-700 disabled:opacity-30" aria-label={tr(UI.prevPage, lang)}>
+                <ChevronLeft size={18} />
+              </button>
+              <span className="px-1 text-[12px] font-black text-gray-800 tabular-nums whitespace-nowrap" aria-live="polite">
+                {tr(UI.pageOf, lang, { n: page + 1, total: form.pages.length })}
+              </span>
+              <button onClick={() => showPage(page + 1)} disabled={page === form.pages.length - 1} className="w-10 h-10 flex items-center justify-center text-gray-700 disabled:opacity-30" aria-label={tr(UI.nextPage, lang)}>
+                <ChevronRight size={18} />
               </button>
             </div>
           )}
@@ -315,7 +364,7 @@ export default function FormFillView({ form, lang, onBack, onLanding, onMap }: P
               <RotateCcw size={16} />
             </button>
             <button
-              onClick={() => { setActiveId(null); setOutputOpen(true); track({ type: 'fill_preview', lang, formKey }); }}
+              onClick={() => { setActiveId(null); setOutputOpen(true); track({ type: 'fill_preview', lang, formKey, formNo }); }}
               className="flex-1 h-12 rounded-2xl bg-brand text-brand-950 font-black text-[14px] flex items-center justify-center gap-1.5 shadow-[0_3px_12px_rgba(254,219,2,0.45)] active:scale-[0.97] transition"
             >
               <FileCheck2 size={17} /> {tr(UI.finish, lang)}
@@ -343,17 +392,19 @@ export default function FormFillView({ form, lang, onBack, onLanding, onMap }: P
         {outputOpen && (
           <OutputModal
             form={form}
+            title={title}
+            formNo={formNo}
             values={values}
             lang={lang}
             missingRequired={required.length - requiredDone}
             onClose={() => setOutputOpen(false)}
-            onPrint={setPrintSrc}
+            onPrint={setPrintPages}
           />
         )}
       </div>
 
-      {/* 인쇄 전용 — 완성된 한국어 서식만 A4로 출력 */}
-      {printSrc && <img src={printSrc} alt="" className="print-only" />}
+      {/* 인쇄 전용 — 완성된 한국어 서식만 쪽마다 A4 한 장으로 출력 */}
+      {printPages?.map((src, i) => <img key={i} src={src} alt="" className="print-only print-page" />)}
     </>
   );
 }

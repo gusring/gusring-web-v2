@@ -1,5 +1,5 @@
 import { FORM_FONT, FORM_FONT_WEIGHT, INK, marksFor } from '../forms/render';
-import { FormDef, Mark, Values } from '../forms/types';
+import { FormDef, Mark, pageIndex, Values } from '../forms/types';
 
 // 화면의 FormSvg와 같은 Mark를 Canvas에 그려 PNG로 만든다.
 
@@ -45,19 +45,55 @@ function drawMark(ctx: CanvasRenderingContext2D, m: Mark) {
   }
 }
 
-export async function renderFormPng(form: FormDef, values: Values): Promise<string> {
+/** 쪽마다 한 장씩 그린다 (인쇄할 때 쪽마다 A4 한 장) */
+export async function renderPagePngs(form: FormDef, values: Values): Promise<string[]> {
   await document.fonts.ready;
-  const img = await loadImage(form.image);
+  return Promise.all(
+    form.pages.map(async (pg, i) => {
+      const img = await loadImage(pg.image);
+      const canvas = document.createElement('canvas');
+      canvas.width = pg.width * SCALE;
+      canvas.height = pg.height * SCALE;
+      const ctx = canvas.getContext('2d')!;
+      ctx.scale(SCALE, SCALE);
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(0, 0, pg.width, pg.height);
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(img, 0, 0, pg.width, pg.height);
+      for (const f of form.fields) if (pageIndex(f) === i) for (const m of marksFor(f, values[f.id])) drawMark(ctx, m);
+      return canvas.toDataURL('image/png');
+    }),
+  );
+}
+
+/** 휴대폰 브라우저가 그릴 수 있는 캔버스 넓이 (iOS Safari 한도 16,777,216px보다 조금 작게) */
+const MAX_CANVAS_AREA = 16_000_000;
+const PAGE_GAP = 24;
+
+/**
+ * 이미지 저장용 한 장. 1쪽 서식은 그 쪽 그대로,
+ * 여러 쪽 서식은 쪽을 같은 폭으로 맞춰 위에서 아래로 이어 붙인다 (휴대폰에서 파일 하나로 저장되도록).
+ */
+export async function joinPagePngs(pngs: string[]): Promise<string> {
+  if (pngs.length === 1) return pngs[0];
+  const imgs = await Promise.all(pngs.map(loadImage));
+  const width = Math.max(...imgs.map((i) => i.naturalWidth));
+  const heights = imgs.map((i) => (i.naturalHeight * width) / i.naturalWidth);
+  const total = heights.reduce((a, b) => a + b, 0) + PAGE_GAP * (imgs.length - 1);
+  const scale = Math.min(1, Math.sqrt(MAX_CANVAS_AREA / (width * total)));
   const canvas = document.createElement('canvas');
-  canvas.width = form.width * SCALE;
-  canvas.height = form.height * SCALE;
+  canvas.width = Math.floor(width * scale);
+  canvas.height = Math.floor(total * scale);
   const ctx = canvas.getContext('2d')!;
-  ctx.scale(SCALE, SCALE);
-  ctx.fillStyle = '#fff';
-  ctx.fillRect(0, 0, form.width, form.height);
+  ctx.scale(scale, scale);
+  ctx.fillStyle = '#9ca3af';
+  ctx.fillRect(0, 0, width, total);
   ctx.imageSmoothingQuality = 'high';
-  ctx.drawImage(img, 0, 0, form.width, form.height);
-  for (const f of form.fields) for (const m of marksFor(f, values[f.id])) drawMark(ctx, m);
+  let y = 0;
+  imgs.forEach((img, i) => {
+    ctx.drawImage(img, 0, y, width, heights[i]);
+    y += heights[i] + PAGE_GAP;
+  });
   return canvas.toDataURL('image/png');
 }
 
