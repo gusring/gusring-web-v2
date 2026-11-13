@@ -18,6 +18,7 @@ import { sealCertificateDelegation } from './seal-certificate-delegation';
 import { idCardLossReport } from './id-card-loss-report';
 import { idCardIssueApplication } from './id-card-issue-application';
 import { idCardReissueApplication } from './id-card-reissue-application';
+import { residenceAddressChange } from './residence-address-change';
 
 // 문서 선택 화면에 보이는 서식 목록. 카테고리·제목·설명은 gusring-web과 동일.
 
@@ -208,6 +209,18 @@ export const catalog: CatalogItem[] = [
       vi: 'Nộp khi tạo và đăng ký một họ mới.',
     },
     form: surnameCreationReport,
+  },
+  {
+    formNo: 21,
+    cat: 'RESIDENCE',
+    desc: {
+      ko: '국내 거주지를 옮겼을 때 새로운 주소지를 신고합니다.',
+      en: 'Report a new address when moving within Korea.',
+      zh: '国内居住地搬迁时申报新住所. ',
+      ja: '国内の居住地を移した時に新しい住所地を届け出ます.',
+      vi: 'Báo cáo địa chỉ mới khi chuyển nơi cư trú trong nước.',
+    },
+    form: residenceAddressChange,
   },
   {
     formNo: 22,
