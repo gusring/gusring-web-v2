@@ -10,6 +10,7 @@ import { adoptionReport } from './adoption-report';
 import { fullAdoptionDissolutionReport } from './full-adoption-dissolution-report';
 import { marriageReport } from './marriage-report';
 import { registerCorrection } from './register-correction';
+import { divorceReport } from './divorce-report';
 
 // 문서 선택 화면에 보이는 서식 목록. 카테고리·제목·설명은 gusring-web과 동일.
 
@@ -174,6 +175,18 @@ export const catalog: CatalogItem[] = [
       vi: 'Sử dụng để sửa các nội dung ghi sai trong sổ đăng ký.',
     },
     form: registerCorrection,
+  },
+  {
+    formNo: 12,
+    cat: 'FAMILY',
+    desc: {
+      ko: '법적 혼인 관계를 해소했음을 신고하는 서류입니다.',
+      en: 'Document reporting the dissolution of a legal marriage.',
+      zh: '申报法律婚姻关系已解除的文件。',
+      ja: '法的婚姻関係を解消したことを届け出る書類です。',
+      vi: 'Văn bản báo cáo việc chấm dứt quan hệ hôn nhân hợp pháp.',
+    },
+    form: divorceReport,
   },
 ];
 
