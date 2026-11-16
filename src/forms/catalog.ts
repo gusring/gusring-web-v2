@@ -22,6 +22,11 @@ import { residenceAddressChange } from './residence-address-change';
 import { residentRecordRequest } from './resident-record-request';
 import { residentRegistrationReport } from './resident-registration-report';
 import { residentRecordDelegation } from './resident-record-delegation';
+import { motorcycleUseReport } from './motorcycle-use-report';
+import { motorcycleDisuseReport } from './motorcycle-disuse-report';
+import { motorcycleChangeReport } from './motorcycle-change-report';
+import { vehicleTransferCertificate } from './vehicle-transfer-certificate';
+import { motorcycleCertificateReissue } from './motorcycle-certificate-reissue';
 
 // 문서 선택 화면에 보이는 서식 목록. 카테고리·제목·설명은 gusring-web과 동일.
 
@@ -348,6 +353,66 @@ export const catalog: CatalogItem[] = [
       vi: 'Đăng ký làm lại thẻ căn cước.',
     },
     form: idCardReissueApplication,
+  },
+  {
+    formNo: 37,
+    cat: 'VEHICLE',
+    desc: {
+      ko: '오토바이를 새로 구입하여 신고할 때 제출합니다.',
+      en: 'Submitted to register a new motorcycle.',
+      zh: '新购买摩托车进行使用申报. ',
+      ja: 'バイクを新しく購入して使用届を出す時に提出します。',
+      vi: 'Đăng ký sử dụng xe máy mới.',
+    },
+    form: motorcycleUseReport,
+  },
+  {
+    formNo: 38,
+    cat: 'VEHICLE',
+    desc: {
+      ko: '오토바이 사용을 중단하거나 폐기할 때 신고합니다.',
+      en: 'Report stopping or scrapping a motorcycle.',
+      zh: '停止使用或报废摩托车时申报. ',
+      ja: 'バイクの使用を中断または廃棄する時に届け出ます。',
+      vi: 'Báo cáo hủy sử dụng xe máy.',
+    },
+    form: motorcycleDisuseReport,
+  },
+  {
+    formNo: 39,
+    cat: 'VEHICLE',
+    desc: {
+      ko: '오토바이 소유자 정보 등 변경 사항이 있을 때 신청합니다.',
+      en: 'Apply when there are changes in owner info.',
+      zh: '摩托车所有者地址等有变更事项. ',
+      ja: 'バイクの所有者の住所など変更がある時に申請します.',
+      vi: 'Thay đổi thông tin báo cáo xe máy.',
+    },
+    form: motorcycleChangeReport,
+  },
+  {
+    formNo: 40,
+    cat: 'VEHICLE',
+    desc: {
+      ko: '차량을 팔거나 넘길 때 작성하는 계약 서류입니다.',
+      en: 'A contract for selling or transferring a vehicle.',
+      zh: '转让车辆时填写的合同. ',
+      ja: '車両を売ったり譲ったりする時に作成する書類です.',
+      vi: 'Hợp đồng chuyển nhượng xe.',
+    },
+    form: vehicleTransferCertificate,
+  },
+  {
+    formNo: 41,
+    cat: 'VEHICLE',
+    desc: {
+      ko: '오토바이 사용신고필증을 잃어버렸을 때 사용합니다.',
+      en: 'Used to re-issue lost registration certificate.',
+      zh: '丢失摩托车证件重新领取. ',
+      ja: 'バイクの証書を紛失して再発行してもらう時に使用します.',
+      vi: 'Cấp lại giấy chứng nhận xe máy.',
+    },
+    form: motorcycleCertificateReissue,
   },
 ];
 
