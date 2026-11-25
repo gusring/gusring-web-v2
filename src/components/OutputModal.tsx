@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { AlertTriangle, Download, PenLine, Printer, ShieldCheck, UserCheck, X } from 'lucide-react';
+import { AlertTriangle, Download, PenLine, Printer, RotateCw, ShieldCheck, UserCheck, X } from 'lucide-react';
 import { FormDef, L, Lang, Values } from '../forms/types';
 import { tr, UI } from '../i18n';
 import { downloadDataUrl, joinPagePngs, renderPagePngs } from '../lib/exportImage';
@@ -22,13 +22,22 @@ export default function OutputModal({ form, title, formNo, values, lang, missing
   /** 쪽마다 하나 */
   const [pngs, setPngs] = useState<string[] | null>(null);
   const [saving, setSaving] = useState(false);
+  /** 서식 이미지를 못 불러왔거나(네트워크) 그리지 못했을 때(메모리 부족 등) */
+  const [failed, setFailed] = useState(false);
+  /** 다시 시도 버튼을 누를 때마다 1씩 — 바뀌면 다시 그린다 */
+  const [attempt, setAttempt] = useState(0);
   const multi = form.pages.length > 1;
 
   useEffect(() => {
     let alive = true;
-    renderPagePngs(form, values).then((urls) => alive && setPngs(urls));
+    setPngs(null);
+    setFailed(false);
+    renderPagePngs(form, values).then(
+      (urls) => alive && setPngs(urls),
+      () => alive && setFailed(true),
+    );
     return () => { alive = false; };
-  }, [form, values]);
+  }, [form, values, attempt]);
 
   const save = async () => {
     if (!pngs || saving) return;
@@ -36,6 +45,9 @@ export default function OutputModal({ form, title, formNo, values, lang, missing
     try {
       downloadDataUrl(await joinPagePngs(pngs), `${title.ko}.png`);
       track({ type: 'fill_png_save', lang, formKey: form.id, formNo });
+    } catch {
+      // 여러 쪽을 이어 붙이다 실패한 경우 (휴대폰 메모리 부족 등)
+      window.alert(tr(UI.saveFailed, lang));
     } finally {
       setSaving(false);
     }
@@ -51,7 +63,20 @@ export default function OutputModal({ form, title, formNo, values, lang, missing
       </header>
 
       <div className="flex-1 overflow-auto p-4 space-y-4">
-        {form.pages.map((pg, i) => (
+        {failed && (
+          <div role="alert" className="mx-auto w-full max-w-[720px] rounded-2xl bg-white p-4 space-y-3 text-center">
+            <p className="flex items-center justify-center gap-2 text-[14px] font-bold text-gray-900">
+              <AlertTriangle size={16} className="text-amber-600 shrink-0" /> {tr(UI.renderFailed, lang)}
+            </p>
+            <button
+              onClick={() => setAttempt((a) => a + 1)}
+              className="h-11 px-5 rounded-2xl bg-brand text-brand-950 font-black text-sm inline-flex items-center gap-2 active:scale-95 transition"
+            >
+              <RotateCw size={16} /> {tr(UI.retry, lang)}
+            </button>
+          </div>
+        )}
+        {!failed && form.pages.map((pg, i) => (
           <figure key={pg.image} className="mx-auto w-full max-w-[720px]">
             {multi && (
               <figcaption className="mb-1.5 text-[12px] font-black text-white/90">
