@@ -13,7 +13,7 @@
 1. 한국어 원본 서식 이미지 위, 입력해야 하는 칸마다 번호 토글이 표시됩니다.
 2. 번호를 누르면 바텀시트가 열리고, 그 칸의 의미와 작성법을 모국어(ko/en/zh/ja/vi)로 안내합니다.
 3. 입력하는 즉시 한국어 서식의 해당 칸에 기재됩니다. 선택형 항목은 ○/✓로, 국가는 한국어 국가명으로 변환됩니다.
-4. "완성 서식 보기"에서 이미지 저장 또는 A4 인쇄. 입력값은 브라우저(localStorage)에만 저장됩니다.
+4. "완성 서식 보기"에서 이미지 저장 또는 A4 인쇄. 입력값은 지금 탭(sessionStorage)에만 남고 탭을 닫으면 지워집니다 — 구청 공용 기기에서 다음 사람이 앞사람 정보를 보지 않도록. 새로고침·뒤로가기로는 지워지지 않습니다. 예전 버전이 localStorage에 남긴 입력값은 앱을 열 때 지웁니다(언어·안내 닫음 설정은 localStorage에 그대로 둠).
 5. 여러 쪽 서식은 왼쪽 아래 「‹ 2쪽 중 1쪽 ›」으로 쪽을 넘깁니다. 번호와 이전·다음은 쪽을 이어서 셉니다(다른 쪽의 칸을 고르면 그 쪽으로 넘어감). 완성 서식 보기는 모든 쪽을 보여 주고, 이미지 저장은 쪽을 위아래로 이어 붙인 PNG 한 장, 인쇄는 쪽마다 A4 한 장입니다.
 
 ## 실행
@@ -40,17 +40,20 @@ src/forms/birth-report.ts 출생신고서 칸 정의: 좌표 + 5개 국어 라�
 src/forms/countries.ts    국가 목록 (모국어 표시 → 한국어 국가명 출력)
 src/forms/render.ts       입력값 → 서식 위 표시(Mark) 변환, 글자 크기 자동 맞춤
 src/App.tsx               해시 라우팅 (언어 선택 → 문서 선택 → 서식 작성)
-src/pages/                LandingView · ListView · Header · OfficeMap (gusring-web) + FormFillView
-src/forms/catalog.ts      문서 선택 화면 서식 목록 · 카테고리
+src/pages/                LandingView · ListView · Header · OfficeMap (gusring-web) + FormLoader · FormFillView
+src/forms/catalog.ts      문서 선택 화면 서식 목록 · 카테고리 · 서식 제목 (서식 정의는 열 때 따로 받음)
 src/components/FormSvg    서식 이미지 + 입력값 + 번호 토글 (SVG)
 src/components/FieldSheet 바텀시트 (안내 · 입력 · 칸 미리보기)
 src/lib/exportImage.ts    같은 Mark를 Canvas에 그려 PNG 생성
 src/lib/gusring-api.ts    구스링 백엔드 연결 (이용 기록 · 의견 보내기)
 src/components/FeedbackSheet  의견 보내기 바텀시트
+scripts/check-forms.mjs   서식 정의 점검 (npm run check:forms)
 ```
 
 ## 서식 추가하기
 `src/forms/{formKey}.ts`에 `FormDef`를 하나 더 만들고 `src/forms/catalog.ts`에 v1 서식 번호(`formNo`)·카테고리·설명과 함께 등록하면 문서 선택 화면에 나타납니다. `formKey`는 영어 kebab-case(예: `birth-report`)입니다.
+- 서식 정의는 서식마다 따로 나눠(코드 분할) 그 서식을 열 때 받습니다. 그래서 `catalog.ts`에서 서식 파일을 `import`하지 않고 `formId: '{formKey}'`와 `load: () => import('./{formKey}').then((m) => m.서식이름)`으로 등록합니다
+- 목록에 보일 제목은 `catalog.ts`의 `FORM_TITLES`에도 `FormDef.title`과 똑같이 넣습니다 (`npm run check:forms`가 둘이 같은지 확인)
 - 원본 이미지: `public/forms/{formKey}_ko.png`, 2쪽은 `{formKey}_ko_2.png` (파일 이름에 한글·공백 금지)
 - `pages`: 쪽마다 `{ image, width, height }`. 1쪽 서식도 한 장짜리 배열
 - 서식 하나를 목록의 여러 항목이 같이 쓰면 항목마다 `key`(주소·저장 이름)와 `title`을 따로 두고, 필요하면 `preset`(처음 열 때 미리 골라 둘 값)을 둡니다 (예: 24·26번 인감 신고서)
@@ -73,6 +76,16 @@ src/components/FeedbackSheet  의견 보내기 바텀시트
 - ○·✓ 크기는 1190px 폭 기준이라, 좁은 쪽(841px 등)에서는 쪽 폭에 맞춰 줄어듭니다
 - 글자는 칸 폭에 맞춰 줄어들고, 한 줄로 16px보다 작아지면 두 줄로 나눕니다
 - 서명·날인, 공무원 기재란, 접수번호·처리란은 입력받지 않습니다
+
+서식을 추가하거나 고친 뒤에는 점검을 돌립니다. 문제가 있으면 목록을 보여 주고 종료 코드 1로 끝납니다. `npm run build`도 타입 검사 다음에 이 점검을 돌리므로, 점검에 실패하면 빌드(배포)가 멈춥니다.
+```bash
+npm run check:forms
+```
+- 목록: key·formNo 중복, key 형식(kebab-case), 제목·설명 5개 국어
+- 쪽: 이미지 파일이 있는지, 이름에 한글·공백이 없는지, `width`·`height`가 실제 이미지 크기와 같은지
+- 칸: id 중복, 이용 기록 서버가 받는 id인지, 없는 섹션, label·help 5개 국어, 쪽 번호 순서, `area`·값 상자·○✓ 위치가 쪽 안에 있는지
+- 선택지 value 중복, `extra.when`·`copyFrom`·`preset`이 있는 값·칸을 가리키는지
+- 좌표가 서식 위 **맞는 자리**에 있는지는 확인하지 못합니다 — 화면에서 직접 확인합니다
 
 ## 확인이 필요한 것
 - 외국인 이름의 한글 표기 기준 (현재 안내: 여권·외국인등록증 이름을 한글로 옮겨 적기)

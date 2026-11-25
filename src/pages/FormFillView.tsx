@@ -6,10 +6,10 @@ import FormSvg, { fieldCrop, pageOf } from '../components/FormSvg';
 import OutputModal from '../components/OutputModal';
 import { isFilled } from '../forms/render';
 import { CatalogItem, entryKey, entryTitle } from '../forms/catalog';
-import { Box, FieldValue, Lang, pageIndex, Values } from '../forms/types';
+import { Box, FieldValue, FormDef, Lang, pageIndex, Values } from '../forms/types';
 import { tr, UI } from '../i18n';
 import { flush, track } from '../lib/gusring-api';
-import { load, remove, save } from '../lib/storage';
+import { load, remove, save, tabOnly, valuesKey } from '../lib/storage';
 import Header from './Header';
 
 const TIP_KEY = 'gusring.tipClosed';
@@ -20,6 +20,8 @@ const MAX_ZOOM = 4;
 interface Props {
   /** 문서 선택 화면의 항목 (서식 + v1 서식 번호) */
   entry: CatalogItem;
+  /** 불러온 서식 정의 (FormLoader) */
+  form: FormDef;
   /** 언어 선택 화면에서 고른 언어. 안내·라벨이 모두 이 언어로 나온다. */
   lang: Lang;
   onBack: () => void;
@@ -27,11 +29,11 @@ interface Props {
   onMap: () => void;
 }
 
-export default function FormFillView({ entry, lang, onBack, onLanding, onMap }: Props) {
-  const form = entry.form;
+export default function FormFillView({ entry, form, lang, onBack, onLanding, onMap }: Props) {
   const title = entryTitle(entry);
-  const VALUES_KEY = `gusring.${entryKey(entry)}.values`;
-  const [values, setValues] = useState<Values>(() => load<Values>(VALUES_KEY, entry.preset ?? {}));
+  /** 입력값은 이 탭에만 둔다 (탭을 닫으면 지워짐) — lib/storage.ts */
+  const VALUES_KEY = valuesKey(entryKey(entry));
+  const [values, setValues] = useState<Values>(() => load<Values>(VALUES_KEY, entry.preset ?? {}, tabOnly));
   const [activeId, setActiveId] = useState<string | null>(null);
   const [zoom, setZoom] = useState(1);
   const [showGuides, setShowGuides] = useState(true);
@@ -94,7 +96,7 @@ export default function FormFillView({ entry, lang, onBack, onLanding, onMap }: 
   }, [formKey, formNo, lang]);
 
   // ── 저장 & 환경 ────────────────────────────────────────────
-  useEffect(() => save(VALUES_KEY, values), [VALUES_KEY, values]);
+  useEffect(() => save(VALUES_KEY, values, tabOnly), [VALUES_KEY, values]);
   // 웹폰트가 늦게 로드되면 글자 폭 계산을 다시 한다
   useEffect(() => {
     document.fonts?.ready.then(() => setFontTick((t) => t + 1));
@@ -230,7 +232,7 @@ export default function FormFillView({ entry, lang, onBack, onLanding, onMap }: 
     setValues(entry.preset ?? {});
     setActiveId(null);
     setCursor(-1);
-    remove(VALUES_KEY);
+    remove(VALUES_KEY, tabOnly);
   };
 
   // ── 인쇄 (쪽마다 A4 한 장) ────────────────────────────────

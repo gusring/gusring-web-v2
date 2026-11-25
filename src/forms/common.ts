@@ -156,7 +156,6 @@ interface Base {
 export const reportDateField = (area: Box, y: Box, m: Box, d: Box): FieldDef => ({
   id: 'reportDate',
   section: 'meta',
-  required: true,
   koLabel: '신고일 ( 년 월 일)',
   label: { ko: '신고하는 날짜', en: 'Date of report', zh: '申报日期', ja: '届出日', vi: 'Ngày khai báo' },
   help: {
