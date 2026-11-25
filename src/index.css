@@ -164,3 +164,26 @@
     page-break-before: always;
   }
 }
+
+/* ─── 서식 관리 화면 (admin.html) ─────────────────────────── */
+@layer components {
+  .admin-input {
+    @apply w-full h-11 rounded-xl px-3 text-[14px] bg-gray-50 border border-gray-200 outline-none focus:border-brand focus:ring-2 focus:ring-brand/30;
+  }
+  .admin-input-sm {
+    @apply w-full min-h-[30px] rounded-md px-2 py-1 text-[12px] bg-white border border-gray-200 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100;
+  }
+  .admin-icon-btn {
+    @apply h-7 w-7 rounded-md inline-flex items-center justify-center hover:bg-gray-100 disabled:opacity-30;
+  }
+  .admin-tool {
+    @apply h-8 px-2 rounded-lg inline-flex items-center gap-1 text-[12px] font-semibold text-gray-700 hover:bg-gray-100 disabled:opacity-30;
+  }
+  .admin-tool.on {
+    @apply bg-gray-900 text-white hover:bg-gray-900;
+  }
+  /* 이용자 화면 미리보기 틀 — transform이 있으면 안의 position:fixed가 이 틀 기준이 된다 */
+  .admin-phone {
+    transform: translateZ(0);
+  }
+}

@@ -3,7 +3,7 @@ import { AlertTriangle, Download, PenLine, Printer, RotateCw, ShieldCheck, UserC
 import { FormDef, L, Lang, Values } from '../forms/types';
 import { tr, UI } from '../i18n';
 import { downloadDataUrl, joinPagePngs, renderPagePngs } from '../lib/exportImage';
-import { track } from '../lib/gusring-api';
+import { track } from '../lib/analytics';
 
 interface Props {
   form: FormDef;
