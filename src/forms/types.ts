@@ -126,6 +126,33 @@ export interface FormDef {
   fields: FieldDef[];
 }
 
+// ─────────────────────────────────────────────────────────────
+// 서버에 저장하는 서식 정의 (관리 화면에서 편집, gusring-server form.draft / form_version.definition)
+// 화면에서 쓰는 FormDef와 같은 칸(fields)을 쓰고, 목록 정보(설명·분류·미리 골라 둘 값)를 같이 담는다.
+// ─────────────────────────────────────────────────────────────
+
+export type CategoryKey = 'FAMILY' | 'CERT' | 'RESIDENCE' | 'ID_SEAL' | 'VEHICLE';
+export const CATEGORY_KEYS: CategoryKey[] = ['FAMILY', 'CERT', 'RESIDENCE', 'ID_SEAL', 'VEHICLE'];
+
+export interface DefinitionPage {
+  /** 서버 form_image id (PNG 내용의 SHA-256) */
+  imageId: string;
+  width: number;
+  height: number;
+  marginX?: number;
+}
+
+export interface FormDefinition {
+  title: L;
+  desc: L;
+  category: CategoryKey;
+  /** 처음 열 때 미리 채워 둘 값 */
+  preset?: Values;
+  pages: DefinitionPage[];
+  sections: { id: string; label: L }[];
+  fields: FieldDef[];
+}
+
 /** 칸이 있는 쪽의 번호 (0부터) */
 export const pageIndex = (field: FieldDef) => (field.page ?? 1) - 1;
 

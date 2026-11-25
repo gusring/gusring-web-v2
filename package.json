@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc --noEmit && npm run check:forms && vite build",
     "preview": "vite preview",
-    "check:forms": "node scripts/check-forms.mjs"
+    "check:forms": "node scripts/check-forms.mjs",
+    "export:forms": "node scripts/export-forms.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.511.0",

@@ -1,8 +1,8 @@
-import { FormDef, L, Values } from './types';
+import { CategoryKey, FormDef, L, Values } from './types';
+
+export type { CategoryKey };
 
 // 문서 선택 화면에 보이는 서식 목록. 카테고리·제목·설명은 gusring-web과 동일.
-
-export type CategoryKey = 'FAMILY' | 'CERT' | 'RESIDENCE' | 'ID_SEAL' | 'VEHICLE';
 
 export const categories: Record<CategoryKey, L> = {
   FAMILY:    { ko: '가족관계',   en: 'Family',       zh: '家庭', ja: '家族', vi: 'Gia đình' },
