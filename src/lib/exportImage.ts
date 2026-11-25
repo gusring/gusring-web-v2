@@ -8,6 +8,8 @@ const SCALE = 2;
 const loadImage = (src: string) =>
   new Promise<HTMLImageElement>((resolve, reject) => {
     const img = new Image();
+    // 서식 이미지는 API 서버(다른 출처)에서 온다 — CORS로 받아야 캔버스에 그린 뒤 PNG로 꺼낼 수 있다
+    img.crossOrigin = 'anonymous';
     img.onload = () => resolve(img);
     img.onerror = reject;
     img.src = src;

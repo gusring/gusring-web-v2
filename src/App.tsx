@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
-import { entryKey, findEntry } from './forms/catalog';
 import { Lang } from './forms/types';
 import { languages } from './i18n';
 import { track } from './lib/gusring-api';
@@ -103,14 +102,11 @@ export default function App() {
   }
 
   if (route.name === 'form') {
-    const entry = findEntry(route.id);
-    if (entry) {
-      return (
-        <div className="w-full sm:max-w-md sm:mx-auto sm:shadow-2xl">
-          <FormLoader key={entryKey(entry)} entry={entry} lang={lang} onBack={back} onLanding={toLanding} onMap={toMap} />
-        </div>
-      );
-    }
+    return (
+      <div className="w-full sm:max-w-md sm:mx-auto sm:shadow-2xl">
+        <FormLoader key={route.id} formKey={route.id} lang={lang} onBack={back} onLanding={toLanding} onMap={toMap} />
+      </div>
+    );
   }
 
   return (
@@ -126,7 +122,7 @@ export default function App() {
         {route.name === 'map' ? (
           <OfficeMap lang={lang} />
         ) : (
-          <ListView lang={lang} onFormSelect={(entry) => go(`/form/${entryKey(entry)}`)} />
+          <ListView lang={lang} onFormSelect={(item) => go(`/form/${encodeURIComponent(item.key)}`)} />
         )}
       </main>
     </Shell>

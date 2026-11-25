@@ -5,9 +5,9 @@ import FieldSheet from '../components/FieldSheet';
 import FormSvg, { fieldCrop, pageOf } from '../components/FormSvg';
 import OutputModal from '../components/OutputModal';
 import { isFilled } from '../forms/render';
-import { CatalogItem, entryKey, entryTitle } from '../forms/catalog';
 import { Box, FieldValue, FormDef, Lang, pageIndex, Values } from '../forms/types';
 import { tr, UI } from '../i18n';
+import { FormEntry } from '../lib/forms-api';
 import { flush, track } from '../lib/gusring-api';
 import { load, remove, save, tabOnly, valuesKey } from '../lib/storage';
 import Header from './Header';
@@ -18,9 +18,9 @@ const MIN_ZOOM = 1;
 const MAX_ZOOM = 4;
 
 interface Props {
-  /** 문서 선택 화면의 항목 (서식 + v1 서식 번호) */
-  entry: CatalogItem;
-  /** 불러온 서식 정의 (FormLoader) */
+  /** 목록 정보 (주소 이름·v1 서식 번호·제목·미리 골라 둘 값) */
+  entry: FormEntry;
+  /** 그릴 서식 (FormLoader가 서버에서 받음, 관리 화면 미리보기는 초안) */
   form: FormDef;
   /** 언어 선택 화면에서 고른 언어. 안내·라벨이 모두 이 언어로 나온다. */
   lang: Lang;
@@ -30,9 +30,9 @@ interface Props {
 }
 
 export default function FormFillView({ entry, form, lang, onBack, onLanding, onMap }: Props) {
-  const title = entryTitle(entry);
+  const title = entry.title;
   /** 입력값은 이 탭에만 둔다 (탭을 닫으면 지워짐) — lib/storage.ts */
-  const VALUES_KEY = valuesKey(entryKey(entry));
+  const VALUES_KEY = valuesKey(entry.key);
   const [values, setValues] = useState<Values>(() => load<Values>(VALUES_KEY, entry.preset ?? {}, tabOnly));
   const [activeId, setActiveId] = useState<string | null>(null);
   const [zoom, setZoom] = useState(1);
@@ -62,7 +62,7 @@ export default function FormFillView({ entry, form, lang, onBack, onLanding, onM
   const zoomAnchor = useRef<{ x: number; y: number } | null>(null);
 
   // ── 이용 기록 (formKey = 서식 id, formNo = v1 서식 번호, 칸에 적은 값은 보내지 않는다) ──
-  const formKey = form.id;
+  const formKey = entry.key;
   const formNo = entry.formNo;
   /** 이 화면에서 처음 값을 바꿨는지 — fill_start는 화면에 들어올 때마다 한 번 */
   const fillStarted = useRef(false);
