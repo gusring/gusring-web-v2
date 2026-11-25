@@ -66,7 +66,8 @@ export const adminApi = {
   save: (id: string, body: { definition?: FormDefinition; key?: string; formNo?: number; baseUpdatedAt: string }) =>
     call<AdminForm>('PATCH', `/admin/forms/${id}`, body),
   remove: (id: string) => call<null>('DELETE', `/admin/forms/${id}`),
-  publish: (id: string) => call<{ version: number }>('POST', `/admin/forms/${id}/publish`),
+  /** baseUpdatedAt: 이 초안을 게시한다 — 그 뒤 다른 사람이 고쳤으면 FORM_CONFLICT (모르는 초안을 게시하지 않게) */
+  publish: (id: string, baseUpdatedAt?: string) => call<{ version: number }>('POST', `/admin/forms/${id}/publish`, baseUpdatedAt ? { baseUpdatedAt } : undefined),
   versions: (id: string) => call<FormVersion[]>('GET', `/admin/forms/${id}/versions`),
   restore: (id: string, version: number) => call<AdminForm>('POST', `/admin/forms/${id}/versions/${version}/restore`),
 

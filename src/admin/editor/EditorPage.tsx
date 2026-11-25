@@ -179,8 +179,9 @@ export default function EditorPage({ id, me, onAuthLost }: { id: string; me: Me;
   };
 
   // ── 저장·게시 ──
-  const save = useCallback(async (overrideBase?: string): Promise<boolean> => {
-    if (!doc) return false;
+  /** 저장하고 새 draftUpdatedAt을 돌려준다 (실패하면 null) */
+  const save = useCallback(async (overrideBase?: string): Promise<string | null> => {
+    if (!doc) return null;
     setBusy(true);
     try {
       const r = await adminApi.save(id, { definition: doc.def, key: doc.key, formNo: doc.formNo, baseUpdatedAt: overrideBase ?? base });
@@ -189,14 +190,14 @@ export default function EditorPage({ id, me, onAuthLost }: { id: string; me: Me;
       setSavedJson(JSON.stringify(doc));
       setConflict(null);
       setStatus({ kind: 'ok', text: '초안을 저장했습니다.' });
-      return true;
+      return r.draftUpdatedAt;
     } catch (e) {
       if (e instanceof ApiError && e.code === 'FORM_CONFLICT') {
         setConflict((e.details as { draftUpdatedAt?: string; draftUpdatedBy?: string }) ?? {});
-        return false;
+        return null;
       }
       handle(e);
-      return false;
+      return null;
     } finally {
       setBusy(false);
     }
@@ -215,15 +216,20 @@ export default function EditorPage({ id, me, onAuthLost }: { id: string; me: Me;
     if (!doc || !loaded) return;
     if (problems.length && !window.confirm(`검사 문제 ${problems.length}건이 있습니다. 서버 검사에서 막힐 수 있습니다. 그래도 게시할까요?`)) return;
     if (!window.confirm(`「${doc.def.title.ko}」을 게시할까요? 이용자 화면에 바로 반영됩니다.`)) return;
-    if (dirty && !(await save())) return;
+    // 저장한 그 초안만 게시한다 (사이에 다른 사람이 고쳤으면 서버가 FORM_CONFLICT)
+    const publishBase = dirty ? await save() : base;
+    if (!publishBase) return;
     setBusy(true);
     setServerProblems(null);
     try {
-      const { version } = await adminApi.publish(id);
+      const { version } = await adminApi.publish(id, publishBase);
       setLoaded({ ...loaded, publishedVersion: version });
       setStatus({ kind: 'ok', text: `${version}번 버전을 게시했습니다. 이용자 화면에 반영됐습니다.` });
     } catch (e) {
-      if (e instanceof ApiError && e.code === 'FORM_INVALID') {
+      if (e instanceof ApiError && e.code === 'FORM_CONFLICT') {
+        setConflict((e.details as { draftUpdatedAt?: string; draftUpdatedBy?: string }) ?? {});
+        setStatus({ kind: 'error', text: '저장한 뒤 다른 사람이 고쳐 게시하지 않았습니다. 새로 불러와 확인해 주세요.' });
+      } else if (e instanceof ApiError && e.code === 'FORM_INVALID') {
         setServerProblems(Array.isArray(e.details) ? (e.details as Problem[]) : []);
         setPanel('problems');
         setStatus({ kind: 'error', text: '서버 검사를 통과하지 못해 게시하지 않았습니다.' });

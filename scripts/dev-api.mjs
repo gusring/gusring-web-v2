@@ -109,8 +109,9 @@ const adminSummary = (f) => {
 };
 const checkUnique = (key, formNo, selfId) => {
   if (!/^[a-z0-9][a-z0-9-]{0,63}$/.test(key)) throw new ApiError(400, 'COMMON_INVALID_INPUT', '주소 이름 형식이 틀렸습니다.');
-  if (live().some((f) => f.key === key && f.id !== selfId)) throw new ApiError(409, 'FORM_KEY_TAKEN', '이미 쓰는 주소 이름입니다.');
-  if (live().some((f) => f.formNo === formNo && f.id !== selfId)) throw new ApiError(409, 'FORM_NO_TAKEN', '이미 쓰는 서식 번호입니다.');
+  // 실제 서버처럼 지운 서식의 주소 이름·번호도 계속 자리를 차지한다
+  if (db.forms.some((f) => f.key === key && f.id !== selfId)) throw new ApiError(409, 'FORM_KEY_TAKEN', '이미 쓰는 주소 이름입니다.');
+  if (db.forms.some((f) => f.formNo === formNo && f.id !== selfId)) throw new ApiError(409, 'FORM_NO_TAKEN', '이미 쓰는 서식 번호입니다.');
 };
 
 // gusring-server src/middlewares/security-headers.ts의 adminPageCsp와 같게
@@ -237,6 +238,8 @@ async function route(req, res) {
   if (req.method === 'POST' && (p = m(/^\/api\/v1\/admin\/forms\/([^/]+)\/publish$/))) {
     requireManager(admin);
     const f = findForm(p[1]);
+    const { baseUpdatedAt } = await json(req);
+    if (baseUpdatedAt && baseUpdatedAt !== f.draftUpdatedAt) throw new ApiError(409, 'FORM_CONFLICT', '다른 사람이 먼저 고쳤습니다. 새로 불러와 주세요.', { draftUpdatedAt: f.draftUpdatedAt, draftUpdatedBy: f.draftUpdatedBy });
     if (!validate) await loadValidate();
     const problems = validate(f.draft, (id) => db.images[id]);
     if (problems.length) throw new ApiError(422, 'FORM_INVALID', '검사를 통과하지 못해 게시하지 않았습니다.', problems);
