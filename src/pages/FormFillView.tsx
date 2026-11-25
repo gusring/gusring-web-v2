@@ -317,7 +317,7 @@ export default function FormFillView({ entry, form, lang, onBack, onLanding, onM
           </div>
 
           {tipOpen && !activeField && (
-            <div className="absolute top-3 inset-x-3 sm:left-1/2 sm:-translate-x-1/2 sm:w-[480px] flex gap-2 items-start p-3 rounded-2xl bg-gray-900/90 text-white shadow-lg animate-fade-in">
+            <div className="absolute top-3 inset-x-3 flex gap-2 items-start p-3 rounded-2xl bg-gray-900/90 text-white shadow-lg animate-fade-in">
               <p className="flex-1 text-[13px] leading-relaxed font-medium">{tr(UI.intro, lang)}</p>
               <button
                 onClick={() => { setTipOpen(false); save(TIP_KEY, true); }}
