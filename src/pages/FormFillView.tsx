@@ -9,7 +9,7 @@ import { CatalogItem, entryKey, entryTitle } from '../forms/catalog';
 import { Box, FieldValue, Lang, pageIndex, Values } from '../forms/types';
 import { tr, UI } from '../i18n';
 import { flush, track } from '../lib/gusring-api';
-import { load, remove, save } from '../lib/storage';
+import { load, remove, save, tabOnly, valuesKey } from '../lib/storage';
 import Header from './Header';
 
 const TIP_KEY = 'gusring.tipClosed';
@@ -30,8 +30,9 @@ interface Props {
 export default function FormFillView({ entry, lang, onBack, onLanding, onMap }: Props) {
   const form = entry.form;
   const title = entryTitle(entry);
-  const VALUES_KEY = `gusring.${entryKey(entry)}.values`;
-  const [values, setValues] = useState<Values>(() => load<Values>(VALUES_KEY, entry.preset ?? {}));
+  /** 입력값은 이 탭에만 둔다 (탭을 닫으면 지워짐) — lib/storage.ts */
+  const VALUES_KEY = valuesKey(entryKey(entry));
+  const [values, setValues] = useState<Values>(() => load<Values>(VALUES_KEY, entry.preset ?? {}, tabOnly));
   const [activeId, setActiveId] = useState<string | null>(null);
   const [zoom, setZoom] = useState(1);
   const [showGuides, setShowGuides] = useState(true);
@@ -94,7 +95,7 @@ export default function FormFillView({ entry, lang, onBack, onLanding, onMap }: 
   }, [formKey, formNo, lang]);
 
   // ── 저장 & 환경 ────────────────────────────────────────────
-  useEffect(() => save(VALUES_KEY, values), [VALUES_KEY, values]);
+  useEffect(() => save(VALUES_KEY, values, tabOnly), [VALUES_KEY, values]);
   // 웹폰트가 늦게 로드되면 글자 폭 계산을 다시 한다
   useEffect(() => {
     document.fonts?.ready.then(() => setFontTick((t) => t + 1));
@@ -230,7 +231,7 @@ export default function FormFillView({ entry, lang, onBack, onLanding, onMap }: 
     setValues(entry.preset ?? {});
     setActiveId(null);
     setCursor(-1);
-    remove(VALUES_KEY);
+    remove(VALUES_KEY, tabOnly);
   };
 
   // ── 인쇄 (쪽마다 A4 한 장) ────────────────────────────────
