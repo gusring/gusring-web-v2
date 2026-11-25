@@ -13,6 +13,8 @@ interface Props {
   onChange: (update: (f: FieldDef) => FieldDef, coalesce?: string) => void;
   onRename: (newId: string) => void;
   onTool: (tool: Tool) => void;
+  /** 칸 id·좌표·내부 key·번호 위치·JSON까지 보이기 */
+  advanced: boolean;
   onDuplicate: () => void;
   onDelete: () => void;
   onClose: () => void;
@@ -24,7 +26,7 @@ const DrawBtn = ({ onClick, label = '다시 그리기' }: { onClick: () => void;
   </button>
 );
 
-export default function FieldPanel({ def, field: f, index, onChange, onRename, onTool, onDuplicate, onDelete, onClose }: Props) {
+export default function FieldPanel({ def, field: f, index, onChange, onRename, onTool, advanced, onDuplicate, onDelete, onClose }: Props) {
   const input = f.input;
   const setInput = (next: InputSpec) => onChange((x) => ({ ...x, input: next }));
   const set = <K extends keyof FieldDef>(k: K, v: FieldDef[K] | undefined, coalesce?: string) =>
@@ -51,9 +53,11 @@ export default function FieldPanel({ def, field: f, index, onChange, onRename, o
       </div>
 
       <section className="space-y-2">
-        <Row label="칸 id (영문, 이용 기록에 쓰임 — 게시 후에는 되도록 바꾸지 않기)">
-          <IdInput value={f.id} onCommit={onRename} />
-        </Row>
+        {advanced && (
+          <Row label="칸 id (영문, 이용 기록에 쓰임 — 게시 후에는 되도록 바꾸지 않기)">
+            <IdInput value={f.id} onCommit={onRename} />
+          </Row>
+        )}
         <Row label="한국어 칸 이름 (원본 서식에 인쇄된 그대로)">
           <Text value={f.koLabel} onChange={(v) => set('koLabel', v, `ko-${f.id}`)} />
         </Row>
@@ -76,7 +80,7 @@ export default function FieldPanel({ def, field: f, index, onChange, onRename, o
       <section className="space-y-2 border-t border-gray-100 pt-3">
         <div className="flex items-center gap-2">
           <h3 className="font-bold text-[13px]">칸 영역</h3>
-          <span className="text-[11px] text-hint tabular-nums">{f.area.x}, {f.area.y} · {f.area.w}×{f.area.h}</span>
+          {advanced && <span className="text-[11px] text-hint tabular-nums">{f.area.x}, {f.area.y} · {f.area.w}×{f.area.h}</span>}
           <span className="ml-auto"><DrawBtn onClick={() => onTool({ type: 'drawSlot', fieldId: f.id, slot: 'area' })} /></span>
         </div>
         <Row label="입력 종류">
@@ -84,9 +88,9 @@ export default function FieldPanel({ def, field: f, index, onChange, onRename, o
             {INPUT_KINDS.map((k) => <option key={k.kind} value={k.kind}>{k.label}</option>)}
           </select>
         </Row>
-        <KindOptions field={f} setInput={setInput} onTool={onTool} />
-        <SlotList field={f} setInput={setInput} onTool={onTool} />
-        <Row label="번호 위치">
+        <KindOptions field={f} setInput={setInput} onTool={onTool} advanced={advanced} />
+        <SlotList field={f} setInput={setInput} onTool={onTool} advanced={advanced} />
+        {advanced && <Row label="번호 위치">
           <select
             className="admin-input-sm"
             value={f.badgeAt ? 'custom' : f.badge === 'margin' ? 'margin' : 'auto'}
@@ -103,7 +107,7 @@ export default function FieldPanel({ def, field: f, index, onChange, onRename, o
             <option value="margin">표 오른쪽 여백</option>
             <option value="custom">직접 (서식 위 번호를 끌어 옮기기)</option>
           </select>
-        </Row>
+        </Row>}
       </section>
 
       <section className="space-y-3 border-t border-gray-100 pt-3">
@@ -111,7 +115,7 @@ export default function FieldPanel({ def, field: f, index, onChange, onRename, o
         <LEditor label="안내 (칸의 뜻·작성법)" value={f.help} onChange={(v) => set('help', v, `help-${f.id}`)} multiline />
       </section>
 
-      <section className="border-t border-gray-100 pt-3">
+      {advanced && <section className="border-t border-gray-100 pt-3">
         <JsonEditor
           label="고급: 이 칸을 JSON으로 고치기 (가져오기 버튼 copyFrom·선택 입력칸 options 등)"
           value={f}
@@ -121,7 +125,7 @@ export default function FieldPanel({ def, field: f, index, onChange, onRename, o
             return null;
           }}
         />
-      </section>
+      </section>}
     </div>
   );
 }
@@ -140,7 +144,7 @@ function IdInput({ value, onCommit }: { value: string; onCommit: (v: string) => 
 }
 
 /** 값 상자 목록 — 상자마다 다시 그리기·정렬 */
-function SlotList({ field: f, setInput, onTool }: { field: FieldDef; setInput: (i: InputSpec) => void; onTool: (t: Tool) => void }) {
+function SlotList({ field: f, setInput, onTool, advanced }: { field: FieldDef; setInput: (i: InputSpec) => void; onTool: (t: Tool) => void; advanced: boolean }) {
   const slots = slotsOf(f.input);
   if (!slots.length) return null;
   const setAlign = (id: string, align: Align) => {
@@ -153,7 +157,7 @@ function SlotList({ field: f, setInput, onTool }: { field: FieldDef; setInput: (
       {slots.map((s) => (
         <div key={s.id} className="flex items-center gap-1.5 text-[12px]">
           <span className="w-16 truncate font-semibold">{s.label}</span>
-          <span className="text-[11px] text-hint tabular-nums flex-1">{s.box.w}×{s.box.h}</span>
+          <span className="text-[11px] text-hint tabular-nums flex-1">{advanced ? `${s.box.w}×${s.box.h}` : ''}</span>
           <select className="admin-input-sm !w-20" value={s.box.align ?? 'left'} onChange={(e) => setAlign(s.id, e.target.value as Align)}>
             <option value="left">왼쪽</option>
             <option value="center">가운데</option>
@@ -167,11 +171,11 @@ function SlotList({ field: f, setInput, onTool }: { field: FieldDef; setInput: (
 }
 
 /** 입력 종류별 설정 */
-function KindOptions({ field: f, setInput, onTool }: { field: FieldDef; setInput: (i: InputSpec) => void; onTool: (t: Tool) => void }) {
+function KindOptions({ field: f, setInput, onTool, advanced }: { field: FieldDef; setInput: (i: InputSpec) => void; onTool: (t: Tool) => void; advanced: boolean }) {
   const input = f.input;
   switch (input.kind) {
     case 'text':
-      return <PartsEditor field={f} parts={input.parts} onParts={(parts) => setInput({ ...input, parts })} />;
+      return <PartsEditor field={f} parts={input.parts} onParts={(parts) => setInput({ ...input, parts })} advanced={advanced} />;
     case 'date':
       return (
         <Row label="날짜 칸 모양">
@@ -223,7 +227,7 @@ function KindOptions({ field: f, setInput, onTool }: { field: FieldDef; setInput
         </Row>
       );
     case 'choice':
-      return <ChoiceEditor field={f} input={input} setInput={setInput} onTool={onTool} />;
+      return <ChoiceEditor field={f} input={input} setInput={setInput} onTool={onTool} advanced={advanced} />;
     default:
       return null;
   }
@@ -258,7 +262,7 @@ function PartFlags({ part, onPart }: { part: Part; onPart: (p: Part) => void }) 
   );
 }
 
-function PartsEditor({ field: f, parts, onParts }: { field: FieldDef; parts: Part[]; onParts: (p: Part[]) => void }) {
+function PartsEditor({ field: f, parts, onParts, advanced }: { field: FieldDef; parts: Part[]; onParts: (p: Part[]) => void; advanced: boolean }) {
   const setPart = (i: number, p: Part) => onParts(parts.map((x, j) => (j === i ? p : x)));
   return (
     <div className="space-y-2">
@@ -266,7 +270,11 @@ function PartsEditor({ field: f, parts, onParts }: { field: FieldDef; parts: Par
       {parts.map((p, i) => (
         <div key={i} className="rounded-lg border border-gray-200 p-2 space-y-1.5">
           <div className="flex gap-1.5 items-center">
-            <input className="admin-input-sm font-mono !w-28" value={p.key} onChange={(e) => setPart(i, { ...p, key: e.target.value })} title="입력칸 key" />
+            {advanced ? (
+              <input className="admin-input-sm font-mono !w-28" value={p.key} onChange={(e) => setPart(i, { ...p, key: e.target.value })} title="입력칸 key" />
+            ) : parts.length > 1 && (
+              <span className="w-16 shrink-0 text-[12px] font-semibold truncate">{p.label?.ko || `${i + 1}번째`}</span>
+            )}
             <input className="admin-input-sm" value={p.placeholder ?? ''} placeholder="예시 (placeholder)" onChange={(e) => setPart(i, { ...p, placeholder: e.target.value || undefined })} />
             {parts.length > 1 && (
               <button type="button" className="admin-icon-btn text-red-600" title="입력칸 지우기" onClick={() => onParts(parts.filter((_, j) => j !== i))}><Trash2 size={13} /></button>
@@ -296,7 +304,7 @@ function PartsEditor({ field: f, parts, onParts }: { field: FieldDef; parts: Par
   );
 }
 
-function ChoiceEditor({ field: f, input, setInput, onTool }: { field: FieldDef; input: Extract<InputSpec, { kind: 'choice' }>; setInput: (i: InputSpec) => void; onTool: (t: Tool) => void }) {
+function ChoiceEditor({ field: f, input, setInput, onTool, advanced }: { field: FieldDef; input: Extract<InputSpec, { kind: 'choice' }>; setInput: (i: InputSpec) => void; onTool: (t: Tool) => void; advanced: boolean }) {
   const setOpt = (i: number, o: ChoiceOption) => setInput({ ...input, options: input.options.map((x, j) => (j === i ? o : x)) });
   const extra = input.extra;
   return (
@@ -312,7 +320,7 @@ function ChoiceEditor({ field: f, input, setInput, onTool }: { field: FieldDef; 
       {input.options.map((o, i) => (
         <div key={i} className="rounded-lg border border-gray-200 p-2 space-y-1.5">
           <div className="flex gap-1.5 items-center">
-            <input className="admin-input-sm font-mono !w-24" value={o.value} title="value (저장 값, 영문)" onChange={(e) => setOpt(i, { ...o, value: e.target.value })} />
+            {advanced && <input className="admin-input-sm font-mono !w-24" value={o.value} title="value (저장 값, 영문)" onChange={(e) => setOpt(i, { ...o, value: e.target.value })} />}
             <input className="admin-input-sm" value={o.ko} placeholder="서식의 한국어" onChange={(e) => setOpt(i, { ...o, ko: e.target.value })} />
             <button type="button" title="서식 위를 눌러 표시 위치 찍기" className="h-7 px-2 rounded-md bg-green-50 text-green-700 text-[11px] font-bold inline-flex items-center gap-1 shrink-0" onClick={() => onTool({ type: 'placeMark', fieldId: f.id, option: o.value })}>
               <Crosshair size={12} /> 위치
@@ -353,7 +361,7 @@ function ChoiceEditor({ field: f, input, setInput, onTool }: { field: FieldDef; 
         {extra && (
           <>
             <div className="flex gap-1.5">
-              <input className="admin-input-sm font-mono !w-24" value={extra.key} onChange={(e) => setInput({ ...input, extra: { ...extra, key: e.target.value } })} />
+              {advanced && <input className="admin-input-sm font-mono !w-24" value={extra.key} onChange={(e) => setInput({ ...input, extra: { ...extra, key: e.target.value } })} />}
               <input className="admin-input-sm" value={extra.placeholder ?? ''} placeholder="예시 (placeholder)" onChange={(e) => setInput({ ...input, extra: { ...extra, placeholder: e.target.value || undefined } })} />
             </div>
             <div className="text-[11px] font-bold text-sub">보일 때 (아무것도 안 고르면 늘)</div>

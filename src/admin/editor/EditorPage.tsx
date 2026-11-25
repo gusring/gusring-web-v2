@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  AlertTriangle, ArrowDown, ArrowUp, Eye, EyeOff, FileDown, History, ListChecks, Minus, MousePointer2, Plus, Redo2, Save, Send, Smartphone, SquarePlus, Undo2,
+  AlertTriangle, ArrowDown, ArrowUp, ChevronDown, Eye, EyeOff, FileDown, History, ListChecks, Minus, MousePointer2, Plus, Redo2, Save, Send, SlidersHorizontal, Smartphone, SquarePlus, Undo2,
 } from 'lucide-react';
 import { toFormDef } from '../../forms/definition';
 import { Box, FieldDef, FormDefinition, Lang, pageIndex } from '../../forms/types';
@@ -11,6 +11,7 @@ import Canvas, { Tool } from './Canvas';
 import FieldPanel from './FieldPanel';
 import FormPanel from './FormPanel';
 import { moveTarget, newField, Target, uniqueId } from './geometry';
+import { FIELD_TEMPLATES, templateOf } from './templates';
 import { useHistory } from './useHistory';
 import { badgePoint } from '../../components/FormSvg';
 
@@ -27,6 +28,7 @@ interface Doc {
 
 const docOf = (f: AdminForm): Doc => ({ key: f.key, formNo: f.formNo, def: f.draft });
 const isTyping = (el: EventTarget | null) => el instanceof HTMLElement && (el.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName));
+const ADVANCED_KEY = 'gusring-admin:advanced';
 const KIND_NAMES: Record<string, string> = { text: '글자', date: '날짜', datetime: '날짜·시각', choice: '선택', country: '국가', idnum: '번호' };
 
 export default function EditorPage({ id, me, onAuthLost }: { id: string; me: Me; onAuthLost: () => void }) {
@@ -50,6 +52,15 @@ export default function EditorPage({ id, me, onAuthLost }: { id: string; me: Me;
   const [panel, setPanel] = useState<'problems' | 'versions' | null>('problems');
   const [userPreview, setUserPreview] = useState<Lang | null>(null);
   const [importOpen, setImportOpen] = useState(false);
+  const [templatesOpen, setTemplatesOpen] = useState(false);
+  /** 고급: 칸 id·좌표·내부 key 같은 개발자용 항목까지 보이기 (이 브라우저에만 기억) */
+  const [advanced, setAdvanced] = useState(() => {
+    try { return localStorage.getItem(ADVANCED_KEY) === '1'; } catch { return false; }
+  });
+  const toggleAdvanced = () => setAdvanced((v) => {
+    try { localStorage.setItem(ADVANCED_KEY, v ? '0' : '1'); } catch { /* 저장 못 해도 이번에는 바뀜 */ }
+    return !v;
+  });
   const canvasBox = useRef<HTMLDivElement>(null);
 
   const handle = useCallback((e: unknown) => {
@@ -122,8 +133,9 @@ export default function EditorPage({ id, me, onAuthLost }: { id: string; me: Me;
 
   const createField = (area: Box) => {
     if (!def) return;
-    const fid = uniqueId('field', new Set(def.fields.map((f) => f.id)));
-    const f = newField(fid, def.sections[0]?.id ?? 'main', area, page + 1);
+    const tpl = templateOf(tool.type === 'newField' ? tool.template : undefined);
+    const fid = uniqueId(tpl.idBase, new Set(def.fields.map((f) => f.id)));
+    const f = newField(fid, def.sections[0]?.id ?? 'main', area, page + 1, tpl.build(area));
     setDef((d) => {
       // 번호는 쪽 순서 → 그 쪽의 맨 뒤
       const at = d.fields.reduce((last, x, i) => (pageIndex(x) <= page ? i + 1 : last), 0);
@@ -260,7 +272,8 @@ export default function EditorPage({ id, me, onAuthLost }: { id: string; me: Me;
         return;
       }
       if (e.key === 'Escape') {
-        if (tool.type !== 'select') setTool({ type: 'select' });
+        if (templatesOpen) setTemplatesOpen(false);
+        else if (tool.type !== 'select') setTool({ type: 'select' });
         else select(null);
         return;
       }
@@ -295,7 +308,7 @@ export default function EditorPage({ id, me, onAuthLost }: { id: string; me: Me;
   const pageFields = def.fields.map((f, idx) => ({ f, idx }));
   const problemCount = (fid: string) => problems.filter((p) => p.fieldId === fid).length;
   const toolHint =
-    tool.type === 'newField' ? '서식 위를 끌어 새 칸의 영역을 그리세요 (Esc 취소)'
+    tool.type === 'newField' ? `「${templateOf(tool.template).name}」 칸 — 서식 위를 끌어 칸 영역을 그리면 값 상자까지 자동으로 들어가요 (Esc 취소)`
       : tool.type === 'drawSlot' ? `「${tool.slot === 'area' ? '칸 영역' : tool.slot}」 상자를 서식 위에 끌어 그리세요 (Esc 취소)`
         : tool.type === 'placeMark' ? `선택지 「${tool.option}」의 ○·✓ 위치를 서식 위에서 누르세요 (Esc 취소)` : '';
 
@@ -310,7 +323,29 @@ export default function EditorPage({ id, me, onAuthLost }: { id: string; me: Me;
 
         <div className="mx-2 h-6 w-px bg-gray-200" />
         <button title="고르기 (Esc)" onClick={() => setTool({ type: 'select' })} className={`admin-tool ${tool.type === 'select' ? 'on' : ''}`}><MousePointer2 size={15} /></button>
-        <button title="새 칸 그리기 (N)" onClick={() => setTool({ type: 'newField' })} className={`admin-tool ${tool.type === 'newField' ? 'on' : ''}`} disabled={!def.pages.length}><SquarePlus size={15} /> 새 칸</button>
+        <div className="relative">
+          <button title="새 칸 — 칸 틀을 고른 뒤 서식 위에 끌기 (N: 빈 글자 칸)" onClick={() => setTemplatesOpen((o) => !o)} className={`admin-tool ${tool.type === 'newField' || templatesOpen ? 'on' : ''}`} disabled={!def.pages.length}>
+            <SquarePlus size={15} /> 새 칸 <ChevronDown size={13} />
+          </button>
+          {templatesOpen && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setTemplatesOpen(false)} />
+              <div className="absolute left-0 top-9 z-50 w-72 bg-white rounded-xl shadow-card-lg border border-gray-200 p-1.5">
+                <p className="px-2 py-1 text-[11px] text-sub">어떤 칸인가요? 고른 뒤 서식 위를 끌면 돼요.</p>
+                {FIELD_TEMPLATES.map((t) => (
+                  <button
+                    key={t.key}
+                    onClick={() => { setTool({ type: 'newField', template: t.key }); setTemplatesOpen(false); }}
+                    className="w-full text-left px-2 py-1.5 rounded-lg hover:bg-gray-100 flex items-baseline gap-2"
+                  >
+                    <span className="font-bold text-[13px] shrink-0">{t.name}</span>
+                    <span className="text-[11px] text-hint truncate">{t.desc}</span>
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
         <button title="되돌리기 (⌘Z)" onClick={hist.undo} disabled={!hist.canUndo} className="admin-tool"><Undo2 size={15} /></button>
         <button title="다시하기 (⇧⌘Z)" onClick={hist.redo} disabled={!hist.canRedo} className="admin-tool"><Redo2 size={15} /></button>
         <div className="mx-2 h-6 w-px bg-gray-200" />
@@ -320,6 +355,7 @@ export default function EditorPage({ id, me, onAuthLost }: { id: string; me: Me;
         <button title="가짜 값으로 글자 크기 미리보기" onClick={() => setPreview((p) => !p)} className={`admin-tool ${preview ? 'on' : ''}`}>{preview ? <Eye size={15} /> : <EyeOff size={15} />} 값 미리보기</button>
 
         <div className="ml-auto flex items-center gap-1.5">
+          <button onClick={toggleAdvanced} className={`admin-tool ${advanced ? 'on' : ''}`} title="칸 id·좌표·내부 값 같은 개발자용 항목까지 보이기"><SlidersHorizontal size={15} /> 고급</button>
           <button onClick={() => setImportOpen(true)} className="admin-tool" title="다른 서식의 칸 가져오기"><FileDown size={15} /> 칸 가져오기</button>
           <button onClick={() => setUserPreview('ko')} className="admin-tool" title="이용자 화면으로 입력해 보기"><Smartphone size={15} /> 이용자 화면</button>
           <button onClick={() => setPanel(panel === 'versions' ? 'problems' : 'versions')} className={`admin-tool ${panel === 'versions' ? 'on' : ''}`}><History size={15} /> 이력</button>
@@ -364,7 +400,7 @@ export default function EditorPage({ id, me, onAuthLost }: { id: string; me: Me;
                   <span className={`w-6 h-6 shrink-0 rounded-full flex items-center justify-center text-[11px] font-black ${f.required ? 'bg-brand' : 'bg-gray-100'}`}>{idx + 1}</span>
                   <span className="flex-1 min-w-0">
                     <span className="block truncate font-semibold">{f.koLabel || f.label.ko || f.id}</span>
-                    <span className="block text-[10px] text-hint">{KIND_NAMES[f.input.kind]} · {f.id}{def.pages.length > 1 ? ` · ${(f.page ?? 1)}쪽` : ''}</span>
+                    <span className="block text-[10px] text-hint">{KIND_NAMES[f.input.kind]}{advanced ? ` · ${f.id}` : ''}{def.pages.length > 1 ? ` · ${(f.page ?? 1)}쪽` : ''}</span>
                   </span>
                   {n > 0 && <span className="text-[10px] font-black text-white bg-red-500 rounded-full px-1.5" title="검사 문제">{n}</span>}
                   <span className="hidden group-hover:flex flex-col">
@@ -417,6 +453,7 @@ export default function EditorPage({ id, me, onAuthLost }: { id: string; me: Me;
               onChange={(u, c) => setField(selected.id, u, c)}
               onRename={(nid) => renameField(selected.id, nid)}
               onTool={setTool}
+              advanced={advanced}
               onDuplicate={() => duplicateField(selected.id)}
               onDelete={() => deleteField(selected.id)}
               onClose={() => select(null)}
@@ -428,6 +465,7 @@ export default function EditorPage({ id, me, onAuthLost }: { id: string; me: Me;
               onMeta={(m) => hist.set((d) => (d ? { ...d, ...m } : d), 'meta')}
               onDef={setDef}
               onShowPage={setPage}
+              advanced={advanced}
             />
           )}
         </aside>

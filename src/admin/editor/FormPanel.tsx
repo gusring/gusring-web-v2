@@ -22,9 +22,11 @@ interface Props {
   onDef: (update: (d: FormDefinition) => FormDefinition, coalesce?: string) => void;
   /** 쪽 이미지를 바꿨을 때 그 쪽을 보여 준다 */
   onShowPage: (page: number) => void;
+  /** 주소 이름·번호·섹션 id·여백 x·preset까지 보이기 */
+  advanced: boolean;
 }
 
-export default function FormPanel({ def, meta, onMeta, onDef, onShowPage }: Props) {
+export default function FormPanel({ def, meta, onMeta, onDef, onShowPage, advanced }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
   /** 올린 이미지를 넣을 자리 (쪽 번호, 없으면 새 쪽) */
   const uploadTo = useRef<number | null>(null);
@@ -96,15 +98,19 @@ export default function FormPanel({ def, meta, onMeta, onDef, onShowPage }: Prop
   return (
     <div className="space-y-4">
       <h2 className="font-black text-[15px]">서식 정보</h2>
-      <p className="text-[12px] text-sub">서식 위의 칸을 누르면 그 칸을 고칠 수 있어요. 「새 칸」을 누르고 서식 위를 끌면 칸이 생겨요.</p>
+      <p className="text-[12px] text-sub">서식 위의 칸을 누르면 그 칸을 고칠 수 있어요. 「새 칸」에서 칸 종류(성명·주소 등)를 고르고 서식 위를 끌면 칸이 생겨요.</p>
 
       <section className="grid grid-cols-2 gap-2">
-        <Row label="주소 이름 (이용자 주소 #/form/…)" hint="바꾸면 이용자의 저장된 입력값·통계가 이어지지 않음">
-          <input className="admin-input-sm font-mono" value={meta.key} onChange={(e) => onMeta({ ...meta, key: e.target.value.trim() })} />
-        </Row>
-        <Row label="서식 번호 (v1)">
-          <Num value={meta.formNo} min={1} onChange={(v) => v !== undefined && onMeta({ ...meta, formNo: v })} />
-        </Row>
+        {advanced && (
+          <>
+            <Row label="주소 이름 (이용자 주소 #/form/…)" hint="바꾸면 이용자의 저장된 입력값·통계가 이어지지 않음">
+              <input className="admin-input-sm font-mono" value={meta.key} onChange={(e) => onMeta({ ...meta, key: e.target.value.trim() })} />
+            </Row>
+            <Row label="서식 번호 (v1)">
+              <Num value={meta.formNo} min={1} onChange={(v) => v !== undefined && onMeta({ ...meta, formNo: v })} />
+            </Row>
+          </>
+        )}
         <Row label="분류">
           <select className="admin-input-sm" value={def.category} onChange={(e) => onDef((d) => ({ ...d, category: e.target.value as CategoryKey }))}>
             {CATEGORY_KEYS.map((k) => <option key={k} value={k}>{categories[k].ko}</option>)}
@@ -121,7 +127,7 @@ export default function FormPanel({ def, meta, onMeta, onDef, onShowPage }: Prop
           <div key={i} className="rounded-lg border border-gray-200 p-2 space-y-1.5">
             <div className="flex items-center gap-1.5 text-[12px]">
               <button type="button" className="font-bold hover:underline" onClick={() => onShowPage(i)}>{i + 1}쪽</button>
-              <span className="text-hint tabular-nums">{p.width}×{p.height}</span>
+              {advanced && <span className="text-hint tabular-nums">{p.width}×{p.height}</span>}
               <span className="ml-auto flex gap-1">
                 <button type="button" title="앞으로" className="admin-icon-btn" onClick={() => movePage(i, -1)} disabled={i === 0}><ArrowUp size={13} /></button>
                 <button type="button" title="뒤로" className="admin-icon-btn" onClick={() => movePage(i, 1)} disabled={i === def.pages.length - 1}><ArrowDown size={13} /></button>
@@ -129,14 +135,14 @@ export default function FormPanel({ def, meta, onMeta, onDef, onShowPage }: Prop
                 <button type="button" title="쪽 지우기" className="admin-icon-btn text-red-600" onClick={() => removePage(i)}><Trash2 size={13} /></button>
               </span>
             </div>
-            <Row label="여백 번호 x (번호 위치 「표 오른쪽 여백」, 비우면 오른쪽 끝에서 118px)">
+            {advanced && <Row label="여백 번호 x (번호 위치 「표 오른쪽 여백」, 비우면 오른쪽 끝에서 118px)">
               <Num value={p.marginX} onChange={(v) => setPages(def.pages.map((x, j) => {
                 if (j !== i) return x;
                 const out = { ...x };
                 if (v === undefined) delete out.marginX; else out.marginX = v;
                 return out;
               }))} />
-            </Row>
+            </Row>}
           </div>
         ))}
         <button type="button" disabled={uploading} onClick={() => pickImage(null)} className="h-8 px-3 rounded-lg bg-gray-900 text-white text-[12px] font-bold inline-flex items-center gap-1.5 disabled:opacity-50">
@@ -151,7 +157,7 @@ export default function FormPanel({ def, meta, onMeta, onDef, onShowPage }: Prop
         {def.sections.map((s, i) => (
           <div key={i} className="rounded-lg border border-gray-200 p-2 space-y-1.5">
             <div className="flex gap-1.5 items-center">
-              <input
+              {advanced && <input
                 className="admin-input-sm font-mono !w-32"
                 defaultValue={s.id}
                 key={s.id}
@@ -165,7 +171,7 @@ export default function FormPanel({ def, meta, onMeta, onDef, onShowPage }: Prop
                     fields: d.fields.map((f) => (f.section === s.id ? { ...f, section: id } : f)),
                   }));
                 }}
-              />
+              />}
               <span className="text-[11px] text-hint">칸 {def.fields.filter((f) => f.section === s.id).length}개</span>
               <button
                 type="button"
@@ -191,7 +197,7 @@ export default function FormPanel({ def, meta, onMeta, onDef, onShowPage }: Prop
         </button>
       </section>
 
-      <section className="border-t border-gray-100 pt-3">
+      {advanced && <section className="border-t border-gray-100 pt-3">
         <JsonEditor
           label="고급: 처음 열 때 미리 골라 둘 값 (preset, JSON)"
           value={def.preset ?? {}}
@@ -206,7 +212,7 @@ export default function FormPanel({ def, meta, onMeta, onDef, onShowPage }: Prop
             return null;
           }}
         />
-      </section>
+      </section>}
     </div>
   );
 }

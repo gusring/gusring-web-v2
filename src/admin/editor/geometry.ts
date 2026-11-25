@@ -111,7 +111,7 @@ export const inner = (a: Box): Box => {
 };
 
 /** 상자를 가로로 비율대로 나눈다 */
-const split = (b: Box, ratios: number[]): Box[] => {
+export const split = (b: Box, ratios: number[]): Box[] => {
   const total = ratios.reduce((s, r) => s + r, 0);
   let x = b.x;
   return ratios.map((r) => {
@@ -165,15 +165,13 @@ export function defaultInput(kind: InputKind, area: Box): InputSpec {
   }
 }
 
-export function newField(id: string, section: string, area: Box, page: number): FieldDef {
+/** body: 칸 틀이 만든 이름·안내·입력 (없으면 빈 글자 칸) */
+export function newField(id: string, section: string, area: Box, page: number, body?: Pick<FieldDef, 'koLabel' | 'label' | 'help' | 'input'>): FieldDef {
   return {
     id,
     section,
-    koLabel: '',
-    label: emptyL(),
-    help: emptyL(),
+    ...(body ?? { koLabel: '', label: emptyL(), help: emptyL(), input: defaultInput('text', area) }),
     area: round(area),
-    input: defaultInput('text', area),
     ...(page > 1 && { page }),
   };
 }

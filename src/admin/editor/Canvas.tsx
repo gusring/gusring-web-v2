@@ -13,7 +13,8 @@ import { boxFrom, marksOf, moveTarget, round, roundPt, sameTarget, setMark, setS
 
 export type Tool =
   | { type: 'select' }
-  | { type: 'newField' }
+  /** template: 칸 틀 key (templates.ts, 없으면 빈 글자 칸) */
+  | { type: 'newField'; template?: string }
   | { type: 'drawSlot'; fieldId: string; slot: string }
   | { type: 'placeMark'; fieldId: string; option: string };
 
