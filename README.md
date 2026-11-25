@@ -47,6 +47,7 @@ src/components/FieldSheet 바텀시트 (안내 · 입력 · 칸 미리보기)
 src/lib/exportImage.ts    같은 Mark를 Canvas에 그려 PNG 생성
 src/lib/gusring-api.ts    구스링 백엔드 연결 (이용 기록 · 의견 보내기)
 src/components/FeedbackSheet  의견 보내기 바텀시트
+scripts/check-forms.mjs   서식 정의 점검 (npm run check:forms)
 ```
 
 ## 서식 추가하기
@@ -73,6 +74,16 @@ src/components/FeedbackSheet  의견 보내기 바텀시트
 - ○·✓ 크기는 1190px 폭 기준이라, 좁은 쪽(841px 등)에서는 쪽 폭에 맞춰 줄어듭니다
 - 글자는 칸 폭에 맞춰 줄어들고, 한 줄로 16px보다 작아지면 두 줄로 나눕니다
 - 서명·날인, 공무원 기재란, 접수번호·처리란은 입력받지 않습니다
+
+서식을 추가하거나 고친 뒤에는 점검을 돌립니다. 문제가 있으면 목록을 보여 주고 종료 코드 1로 끝납니다.
+```bash
+npm run check:forms
+```
+- 목록: key·formNo 중복, key 형식(kebab-case), 제목·설명 5개 국어
+- 쪽: 이미지 파일이 있는지, 이름에 한글·공백이 없는지, `width`·`height`가 실제 이미지 크기와 같은지
+- 칸: id 중복, 이용 기록 서버가 받는 id인지, 없는 섹션, label·help 5개 국어, 쪽 번호 순서, `area`·값 상자·○✓ 위치가 쪽 안에 있는지
+- 선택지 value 중복, `extra.when`·`copyFrom`·`preset`이 있는 값·칸을 가리키는지
+- 좌표가 서식 위 **맞는 자리**에 있는지는 확인하지 못합니다 — 화면에서 직접 확인합니다
 
 ## 확인이 필요한 것
 - 외국인 이름의 한글 표기 기준 (현재 안내: 여권·외국인등록증 이름을 한글로 옮겨 적기)
