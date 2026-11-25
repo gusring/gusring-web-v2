@@ -172,7 +172,7 @@ const fields: FieldDef[] = [
 export const residentRegistrationReport: FormDef = {
   id: 'resident-registration-report',
   title: { ko: '주민등록신고서', en: 'Resident Registration Report', zh: '居民登记申报书', ja: '住民登録届出書', vi: 'Tờ khai đăng ký cư trú' },
-  pages: [{ image: '/forms/resident-registration-report_ko.png', width: 1190, height: 1682 }],
+  pages: [{ image: '/forms/resident-registration-report_ko.png', width: 1191, height: 1684 }],
   sections: [
     { id: 'reporter', label: { ko: '신고인', en: 'Person reporting', zh: '申报人', ja: '届出人', vi: 'Người khai báo' } },
     { id: 'head', label: { ko: '세대주', en: 'Head of household', zh: '户主', ja: '世帯主', vi: 'Chủ hộ' } },

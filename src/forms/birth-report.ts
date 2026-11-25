@@ -84,10 +84,9 @@ const copyName = (field: string, who: L): FieldDef['copyFrom'] => [
   },
 ];
 
-const parentNameField = (id: string, who: L, y: number, required: boolean): FieldDef => ({
+const parentNameField = (id: string, who: L, y: number): FieldDef => ({
   id,
   section: 'parents',
-  required,
   koLabel: `② ${who === FATHER ? '부' : '모'} 성명 (한자)`,
   label: { ko: `${who.ko} 이름`, en: `${who.en}'s name`, zh: `${who.zh}姓名`, ja: `${who.ja}の氏名`, vi: `Tên của ${who.vi}` },
   help: {
@@ -112,10 +111,9 @@ const parentNameField = (id: string, who: L, y: number, required: boolean): Fiel
   },
 });
 
-const parentIdField = (id: string, who: L, y: number, required: boolean): FieldDef => ({
+const parentIdField = (id: string, who: L, y: number): FieldDef => ({
   id,
   section: 'parents',
-  required,
   koLabel: `② ${who === FATHER ? '부' : '모'} 주민등록번호`,
   label: idLabel(who),
   help: ID_HELP,
@@ -128,10 +126,9 @@ const parentIdField = (id: string, who: L, y: number, required: boolean): FieldD
   },
 });
 
-const parentOriginField = (id: string, who: L, y: number, required: boolean): FieldDef => ({
+const parentOriginField = (id: string, who: L, y: number): FieldDef => ({
   id,
   section: 'parents',
-  required,
   koLabel: `② ${who === FATHER ? '부' : '모'}의 등록기준지`,
   label: { ko: `${who.ko} 국적 (등록기준지)`, en: `${who.en}'s nationality (registration base)`, zh: `${who.zh}国籍（登记基准地）`, ja: `${who.ja}の国籍（登録基準地）`, vi: `Quốc tịch của ${who.vi} (nơi đăng ký gốc)` },
   help: ORIGIN_HELP,
@@ -160,7 +157,6 @@ const fields: FieldDef[] = [
   {
     id: 'reportDate',
     section: 'meta',
-    required: true,
     koLabel: '신고일 ( 년 월 일)',
     label: { ko: '신고하는 날짜', en: 'Date of report', zh: '申报日期', ja: '届出日', vi: 'Ngày khai báo' },
     help: {
@@ -185,7 +181,6 @@ const fields: FieldDef[] = [
   {
     id: 'childNameKo',
     section: 'child',
-    required: true,
     koLabel: '① 출생자 성명 (한글)',
     label: { ko: '아기 이름 (한글)', en: "Baby's name (in Korean)", zh: '婴儿姓名（韩文）', ja: '子の氏名（ハングル）', vi: 'Tên của bé (bằng tiếng Hàn)' },
     help: {
@@ -228,7 +223,6 @@ const fields: FieldDef[] = [
   {
     id: 'sex',
     section: 'child',
-    required: true,
     koLabel: '① 성별',
     label: { ko: '성별', en: 'Sex', zh: '性别', ja: '性別', vi: 'Giới tính' },
     help: {
@@ -251,7 +245,6 @@ const fields: FieldDef[] = [
   {
     id: 'marital',
     section: 'child',
-    required: true,
     koLabel: '① 혼인중의 출생자 / 혼인외의 출생자',
     label: { ko: '부모의 혼인 여부', en: "Parents' marital status", zh: '父母婚姻状况', ja: '父母の婚姻状況', vi: 'Tình trạng hôn nhân của bố mẹ' },
     help: {
@@ -274,7 +267,6 @@ const fields: FieldDef[] = [
   {
     id: 'birthDateTime',
     section: 'child',
-    required: true,
     koLabel: '① 출생일시',
     label: { ko: '태어난 날짜와 시간', en: 'Date and time of birth', zh: '出生日期和时间', ja: '出生日時', vi: 'Ngày giờ sinh' },
     help: {
@@ -299,7 +291,6 @@ const fields: FieldDef[] = [
   {
     id: 'birthPlace',
     section: 'child',
-    required: true,
     koLabel: '① 출생장소',
     label: { ko: '태어난 장소', en: 'Place of birth', zh: '出生地点', ja: '出生場所', vi: 'Nơi sinh' },
     help: {
@@ -331,7 +322,6 @@ const fields: FieldDef[] = [
   {
     id: 'childAddress',
     section: 'child',
-    required: true,
     koLabel: '① 주소',
     label: { ko: '아기가 살 주소', en: "Baby's address", zh: '婴儿住址', ja: '子の住所', vi: 'Địa chỉ của bé' },
     help: {
@@ -397,12 +387,12 @@ const fields: FieldDef[] = [
   },
 
   // ── ② 부모 ───────────────────────────────────────────────
-  parentNameField('fatherName', FATHER, 547, true),
-  parentIdField('fatherId', FATHER, 547, true),
-  parentNameField('motherName', MOTHER, 586, true),
-  parentIdField('motherId', MOTHER, 586, true),
-  parentOriginField('fatherOrigin', FATHER, 625, true),
-  parentOriginField('motherOrigin', MOTHER, 664, true),
+  parentNameField('fatherName', FATHER, 547),
+  parentIdField('fatherId', FATHER, 547),
+  parentNameField('motherName', MOTHER, 586),
+  parentIdField('motherId', MOTHER, 586),
+  parentOriginField('fatherOrigin', FATHER, 625),
+  parentOriginField('motherOrigin', MOTHER, 664),
   {
     id: 'surnameAgreement',
     section: 'parents',
@@ -448,7 +438,6 @@ const fields: FieldDef[] = [
   {
     id: 'reporterName',
     section: 'reporter',
-    required: true,
     koLabel: '⑤ 신고인 성명',
     label: { ko: '신고하는 사람 이름', en: 'Name of the person reporting', zh: '申报人姓名', ja: '届出人の氏名', vi: 'Tên người khai báo' },
     help: {
@@ -465,7 +454,6 @@ const fields: FieldDef[] = [
   {
     id: 'reporterId',
     section: 'reporter',
-    required: true,
     koLabel: '⑤ 신고인 주민등록번호',
     label: { ko: '신고인 주민등록번호 / 외국인등록번호', en: "Reporter's resident / alien registration no.", zh: '申报人居民登录号 / 外国人登录号', ja: '届出人の住民登録番号／外国人登録番号', vi: 'Số đăng ký cư trú / người nước ngoài của người khai' },
     help: ID_HELP,
@@ -476,7 +464,6 @@ const fields: FieldDef[] = [
   {
     id: 'reporterQualification',
     section: 'reporter',
-    required: true,
     koLabel: '⑤ 자격',
     label: { ko: '신고인과 아기의 관계', en: "Reporter's relationship to the baby", zh: '申报人与婴儿的关系', ja: '届出人の資格', vi: 'Quan hệ của người khai với bé' },
     help: {
@@ -528,7 +515,6 @@ const fields: FieldDef[] = [
   {
     id: 'reporterPhone',
     section: 'reporter',
-    required: true,
     koLabel: '⑤ 전화',
     label: { ko: '전화번호', en: 'Phone number', zh: '电话号码', ja: '電話番号', vi: 'Số điện thoại' },
     help: {
