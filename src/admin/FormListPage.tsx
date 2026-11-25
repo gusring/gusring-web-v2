@@ -124,7 +124,7 @@ function CreateDialog({ copyFrom, nextNo, onClose, onAuthLost }: { copyFrom?: Ad
         <h2 className="font-black text-lg">{copyFrom ? `「${copyFrom.title.ko}」 복제` : '새 서식'}</h2>
         <label className="block">
           <span className="block text-[12px] font-bold text-sub mb-1">주소 이름 (영어 소문자·숫자·-, 예: birth-report)</span>
-          <input className="admin-input" value={key} onChange={(e) => setKey(e.target.value.trim())} autoFocus pattern="[a-z0-9][a-z0-9-]*" required />
+          <input className="admin-input" value={key} onChange={(e) => setKey(e.target.value.trim())} autoFocus pattern="[a-z0-9][a-z0-9\-]*" required />
         </label>
         <label className="block">
           <span className="block text-[12px] font-bold text-sub mb-1">서식 번호 (v1 번호, 통계에 쓰임)</span>

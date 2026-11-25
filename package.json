@@ -5,10 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && npm run check:forms && vite build",
+    "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "check:forms": "node scripts/check-forms.mjs",
-    "export:forms": "node scripts/export-forms.mjs",
     "dev:api": "node scripts/dev-api.mjs",
     "build:admin": "tsc --noEmit && vite build --mode admin",
     "admin:copy": "node scripts/admin-copy.mjs"

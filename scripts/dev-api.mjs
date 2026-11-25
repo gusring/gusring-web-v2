@@ -1,4 +1,5 @@
-// 개발용 가짜 서식 API: npm run dev:api -- <export:forms로 내보낸 폴더>
+// 개발용 가짜 서식 API: npm run dev:api -- <데이터 폴더>
+// 폴더에 forms.json(서식 목록 [{ key, formNo, definition }] + 같은 폴더의 PNG)이 있으면 그것으로 시작하고, 없으면 빈 상태로 시작한다.
 // gusring-server의 서식 API(공개 + 관리자)와 같은 약속으로 응답한다. 서버 없이 이용자 화면·관리 화면을 개발·확인할 때 쓴다.
 // - 데이터는 메모리 + 폴더의 dev-db.json에 저장 (지우면 처음 내보낸 상태로)
 // - 로그인: 아무 비밀번호나 됨. 아이디가 staff로 시작하면 일반 관리자, 아니면 계정 관리자
@@ -6,16 +7,21 @@
 // 실제 서버와 다른 점이 생기면 실제 서버(gusring-server docs/api.md)가 맞다.
 
 import { createHash, randomUUID } from 'node:crypto';
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
-import { join, resolve } from 'node:path';
-import { pngSize, root } from './forms-source.mjs';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const root = join(dirname(fileURLToPath(import.meta.url)), '..');
+/** PNG 머리(IHDR)에서 크기를 읽는다 */
+const pngSize = (buf) => ({ width: buf.readUInt32BE(16), height: buf.readUInt32BE(20) });
 
 const dir = resolve(process.argv[2] ?? '');
-if (!process.argv[2] || !existsSync(join(dir, 'forms.json'))) {
-  console.error('export:forms로 내보낸 폴더를 주세요: npm run dev:api -- ../forms-export');
+if (!process.argv[2]) {
+  console.error('데이터 폴더를 주세요: npm run dev:api -- ../dev-forms');
   process.exit(1);
 }
+mkdirSync(dir, { recursive: true });
 const PORT = Number(process.env.PORT ?? 4000);
 const DB_FILE = join(dir, 'dev-db.json');
 
@@ -26,7 +32,8 @@ if (existsSync(DB_FILE)) {
   db = JSON.parse(readFileSync(DB_FILE, 'utf8'));
 } else {
   db = { forms: [], images: {} };
-  for (const f of JSON.parse(readFileSync(join(dir, 'forms.json'), 'utf8'))) {
+  const seed = existsSync(join(dir, 'forms.json')) ? JSON.parse(readFileSync(join(dir, 'forms.json'), 'utf8')) : [];
+  for (const f of seed) {
     const at = now();
     db.forms.push({
       id: randomUUID(), key: f.key, formNo: f.formNo, draft: f.definition, draftUpdatedAt: at, draftUpdatedBy: 'import',

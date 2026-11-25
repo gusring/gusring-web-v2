@@ -3,8 +3,10 @@
 // 서버 저장소에서 바뀐 파일을 커밋하면 서버가 /admin/forms/에서 제공한다.
 
 import { cpSync, existsSync, renameSync, rmSync } from 'node:fs';
-import { join, resolve } from 'node:path';
-import { root } from './forms-source.mjs';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 
 const dist = join(root, 'dist-admin');
 const server = resolve(process.argv[2] ?? join(root, '..', 'gusring-server'));
