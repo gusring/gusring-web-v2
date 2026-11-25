@@ -3,7 +3,7 @@ import { ArrowLeft, Map, MessageSquareText } from 'lucide-react';
 import FeedbackSheet, { type FeedbackContext } from '../components/FeedbackSheet';
 import { Lang } from '../forms/types';
 import { tr, UI } from '../i18n';
-import { track } from '../lib/gusring-api';
+import { track } from '../lib/analytics';
 
 // gusring-web Header 기반 (로고/뒤로가기 + 의견 보내기 + 지도)
 
@@ -16,9 +16,11 @@ interface Props {
   mapActive?: boolean;
   /** 서식 화면에서 열면 어느 서식·칸에 대한 의견인지 같이 보낸다 */
   feedbackContext?: FeedbackContext;
+  /** 관리 화면 미리보기: 의견 보내기·지도 버튼을 숨긴다 */
+  preview?: boolean;
 }
 
-export default function Header({ lang, onBack, onLanding, onMap, mapActive, feedbackContext }: Props) {
+export default function Header({ lang, onBack, onLanding, onMap, mapActive, feedbackContext, preview }: Props) {
   const [feedbackOpen, setFeedbackOpen] = useState(false);
 
   const openFeedback = () => {
@@ -46,7 +48,7 @@ export default function Header({ lang, onBack, onLanding, onMap, mapActive, feed
             )}
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
+          {!preview && <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={openFeedback}
               className="btn-press h-9 w-9 flex items-center justify-center rounded-xl border border-gusring-brand-100 shadow-card active:scale-95 transition-all bg-gusring-yellow-soft text-gusring-brand-700"
@@ -63,7 +65,7 @@ export default function Header({ lang, onBack, onLanding, onMap, mapActive, feed
             >
               <Map size={18} />
             </button>
-          </div>
+          </div>}
         </div>
       </header>
 

@@ -22,43 +22,59 @@ npm install
 npm run dev
 ```
 
-로컬 [gusring-server](https://github.com/gusring/gusring-server)에 붙일 때 (기본은 운영 `https://api.gusring.kro.kr`):
+서식은 서버(gusring-server)의 게시된 서식을 받습니다. 기본은 운영 `https://api.gusring.kro.kr`, 로컬 서버에 붙일 때:
 ```bash
 VITE_GUSRING_API=http://localhost:4000 npm run dev
 ```
 
+서버 없이 개발할 때는 가짜 서식 API를 씁니다 (공개·관리자 API를 실제 서버와 같은 약속으로 흉내, 데이터는 폴더의 `dev-db.json`):
+```bash
+npm run export:forms -- ../forms-export
+PORT=4000 npm run dev:api -- ../forms-export
+```
+
 ## 구스링 백엔드 연결
-`src/lib/gusring-api.ts`는 gusring-server `examples/gusring-api.ts`와 같은 파일입니다 (gusring-web `src/shared/gusring-api.ts`와도 같음). 고칠 때는 원본을 고치고 복사합니다.
-- 이용 기록: 화면 진입·언어 선택·검색·카테고리, 서식 작성 단계(`form_view` `fill_start` `field_open` `fill_preview` `fill_png_save` `fill_print` `fill_reset` `detail_time`)를 `formKey`(서식 id)·`formNo`(gusring-web 서식 번호)와 함께 보냅니다. **칸에 적은 값은 보내지 않습니다.**
+`src/lib/gusring-api.ts`는 gusring-server `examples/gusring-api.ts`와 같은 파일입니다 (gusring-web `src/shared/gusring-api.ts`와도 같음). 고칠 때는 원본을 고치고 복사합니다. 화면 코드는 `src/lib/analytics.ts`를 거쳐 부릅니다 (관리 화면 미리보기에서 이용 기록을 끄려고).
+- 서식: `GET /api/v1/forms`(목록) · `/api/v1/forms/{key}`(게시된 정의) · `/api/v1/form-images/{id}`(원본 PNG) — `src/lib/forms-api.ts`
+- 이용 기록: 화면 진입·언어 선택·검색·카테고리, 서식 작성 단계(`form_view` `fill_start` `field_open` `fill_preview` `fill_png_save` `fill_print` `fill_reset` `detail_time`)를 `formKey`(서식 주소 이름)·`formNo`(gusring-web 서식 번호)와 함께 보냅니다. **칸에 적은 값은 보내지 않습니다.**
 - 의견 보내기: 헤더 버튼 → `POST /api/v1/feedbacks`. 서식 화면에서 보내면 서식 id·서식 번호·칸 id가 같이 갑니다.
-- 운영 서버 CORS에 이 사이트 주소가 등록돼 있어야 의견 보내기가 됩니다 (이용 기록은 text/plain이라 등록 없이도 도착).
+- 운영 서버 CORS에 이 사이트 주소가 등록돼 있어야 서식 목록·의견 보내기가 됩니다 (이용 기록은 text/plain이라 등록 없이도 도착). 서식 이미지는 캔버스에 그려 PNG로 저장하므로 CORS로 받습니다.
 
 ## 구조
 ```
-src/forms/types.ts        서식 정의 타입 (FormDef·FormPage, Box, FieldDef, InputSpec, Mark)
-src/forms/birth-report.ts 출생신고서 칸 정의: 좌표 + 5개 국어 라벨/안내 + 입력 종류
+src/forms/types.ts        서식 타입 (화면용 FormDef, 서버 저장용 FormDefinition, Box, FieldDef, InputSpec, Mark)
+src/forms/definition.ts   저장 형식 → 화면 형식 바꾸기
+src/forms/validate.ts     서식 검사 규칙 (관리 화면·check:forms·서버 게시 검사가 같이 씀 — 서버에 복사본)
 src/forms/countries.ts    국가 목록 (모국어 표시 → 한국어 국가명 출력)
 src/forms/render.ts       입력값 → 서식 위 표시(Mark) 변환, 글자 크기 자동 맞춤
+src/forms/fake.ts         가짜 입력값 (관리 화면 「값 미리보기」)
 src/App.tsx               해시 라우팅 (언어 선택 → 문서 선택 → 서식 작성)
 src/pages/                LandingView · ListView · Header · OfficeMap (gusring-web) + FormLoader · FormFillView
-src/forms/catalog.ts      문서 선택 화면 서식 목록 · 카테고리 · 서식 제목 (서식 정의는 열 때 따로 받음)
 src/components/FormSvg    서식 이미지 + 입력값 + 번호 토글 (SVG)
 src/components/FieldSheet 바텀시트 (안내 · 입력 · 칸 미리보기)
 src/lib/exportImage.ts    같은 Mark를 Canvas에 그려 PNG 생성
+src/lib/forms-api.ts      게시된 서식 받기
 src/lib/gusring-api.ts    구스링 백엔드 연결 (이용 기록 · 의견 보내기)
-src/components/FeedbackSheet  의견 보내기 바텀시트
-scripts/check-forms.mjs   서식 정의 점검 (npm run check:forms)
+src/admin/                서식 관리 화면 (admin.html) — 목록·편집기(드래그)·게시
+scripts/                  check-forms · export-forms · dev-api(가짜 API) · admin-copy
 ```
 
-## 서식 추가하기
-`src/forms/{formKey}.ts`에 `FormDef`를 하나 더 만들고 `src/forms/catalog.ts`에 v1 서식 번호(`formNo`)·카테고리·설명과 함께 등록하면 문서 선택 화면에 나타납니다. `formKey`는 영어 kebab-case(예: `birth-report`)입니다.
-- 서식 정의는 서식마다 따로 나눠(코드 분할) 그 서식을 열 때 받습니다. 그래서 `catalog.ts`에서 서식 파일을 `import`하지 않고 `formId: '{formKey}'`와 `load: () => import('./{formKey}').then((m) => m.서식이름)`으로 등록합니다
-- 목록에 보일 제목은 `catalog.ts`의 `FORM_TITLES`에도 `FormDef.title`과 똑같이 넣습니다 (`npm run check:forms`가 둘이 같은지 확인)
-- 원본 이미지: `public/forms/{formKey}_ko.png`, 2쪽은 `{formKey}_ko_2.png` (파일 이름에 한글·공백 금지)
-- `pages`: 쪽마다 `{ image, width, height }`. 1쪽 서식도 한 장짜리 배열
-- 서식 하나를 목록의 여러 항목이 같이 쓰면 항목마다 `key`(주소·저장 이름)와 `title`을 따로 두고, 필요하면 `preset`(처음 열 때 미리 골라 둘 값)을 둡니다 (예: 24·26번 인감 신고서)
+## 서식 관리 화면 (관리자 모드)
+담당자가 서식을 만들고·고치고·지웁니다. 서버가 `https://api.gusring.kro.kr/admin/forms/`에서 제공하고, 로그인은 서버 관리자 계정 그대로입니다.
+- **저장은 초안**, 계정 관리자(`manager`)가 **게시**해야 이용자 화면에 보입니다. 게시할 때 서버가 `validate.ts` 규칙으로 검사하고, 통과하지 못하면 게시하지 않습니다. 게시할 때마다 버전이 남고 「이력」에서 옛 버전을 초안으로 가져올 수 있습니다
+- 두 사람이 같은 서식을 고치면 나중에 저장한 사람에게 「먼저 저장했습니다」가 뜹니다 (서버 것 불러오기 / 내 것으로 덮어쓰기)
+- 편집기
+  - **새 칸**(N): 서식 위를 끌어 칸 영역(빨강)을 그립니다. 입력 종류를 고르면 영역 안에 값 상자(파랑)가 생깁니다
+  - 영역·값 상자는 끌어 옮기고 모서리로 크기를 바꿉니다. 영역을 옮기면 칸 전체(상자·○✓·번호)가 같이 움직입니다. 화살표 1px, Shift+화살표 10px
+  - 선택형은 선택지마다 「위치」를 누르고 서식 위를 눌러 ○·✓ 자리(초록)를 찍습니다. 번호(노랑)는 「번호 위치: 직접」이면 끌어 옮깁니다
+  - 「값 미리보기」: 가장 긴 가짜 값으로 실제 글자 크기·줄바꿈을 봅니다. 「이용자 화면」: 저장 전 초안을 이용자 화면 그대로 입력해 봅니다 (이용 기록은 보내지 않음)
+  - 되돌리기 ⌘Z · 다시하기 ⇧⌘Z · 저장 ⌘S · 칸 지우기 Delete · 취소 Esc
+  - 「칸 가져오기」: 다른 서식의 칸(안내 문구·입력 종류)을 가져와 좌표만 다시 맞춥니다 (예전 `common.ts`의 공통 칸 대신)
+- 개발: `npm run dev` 후 `http://localhost:5173/admin.html`. `/api`는 dev 서버가 `VITE_ADMIN_API`(없으면 `VITE_GUSRING_API`) 서버로 넘기고 Origin도 바꿔 줍니다 (서버의 같은 출처 검사)
+- 배포: `npm run build:admin` → `npm run admin:copy -- ../gusring-server` → 서버 저장소에서 `public/admin/forms/` 커밋. 서버 CSP(`script-src 'self'` 등)에 맞춰 인라인 스크립트·스타일·외부 글꼴을 쓰지 않습니다 (`dev:api`가 같은 CSP로 `/admin/forms/`를 제공해 확인 가능)
 
-칸마다 필요한 것은
+## 서식 정의 (칸마다 필요한 것)
+관리 화면에서 고치는 값들입니다. 고급 속성은 편집기의 「JSON으로 고치기」로 고칩니다.
 - `page`: 칸이 있는 쪽 (1부터, 없으면 1쪽). 아래 좌표는 그 쪽 이미지 기준
 - `area`: 서식 이미지 위 탭 영역 (원본 이미지 픽셀 좌표)
 - `input`: 입력 종류(`text` · `date` · `datetime` · `choice` · `country` · `idnum`)와 값을 쓸 위치
@@ -68,24 +84,19 @@ scripts/check-forms.mjs   서식 정의 점검 (npm run check:forms)
   - `country`: `allowKorea: true`는 등록기준지 칸(한국이면 주소 입력), `allowKorea: 'name'`은 국적 칸(한국이면 「대한민국」)
 - `label` · `help`: 5개 국어 안내
 
-`fields`의 순서가 번호와 이전·다음 순서입니다. 1쪽 위→아래, 2쪽 위→아래 순으로 둡니다. 두 사람이 나란히 있는 표(양부·양모 등)는 한 사람 칸을 다 채운 뒤 다음 사람으로 넘어가게 둡니다.
-
-가족관계 신고서들이 같이 쓰는 칸(이름·한자·주민등록번호·등록기준지·주소·본·신고인·제출인·인구동향조사 학력)은 `src/forms/common.ts`에서 좌표만 넘겨 만듭니다. 이륜자동차 서식(37~39번)의 소유자 표와 신고인 줄은 `src/forms/motorcycle-common.ts`에 있습니다. 안내 문구도 거기서 같이 관리합니다. 주민등록표 신청서 두 가지(31·34번)가 같이 쓰는 「포함」 목록·확인사항·동의서는 `src/forms/resident-record-items.ts`에 있습니다.
-- 번호 토글은 칸 이름(라벨)을 가리지 않도록 값 칸 왼쪽 위에 둡니다. 선택지 상자와 겹치면 `badge: 'margin'`(표 오른쪽 여백, 쪽마다 `marginX`), 그래도 안 되면 `badgeAt`으로 빈 자리를 직접 지정
-- 칸 이름이 칸 왼쪽 위에 인쇄된 정부 서식(인감·주민등록 서식 등)은 번호를 칸 오른쪽 위에 둡니다 (`topRight`)
+칸 순서가 번호와 이전·다음 순서입니다. 1쪽 위→아래, 2쪽 위→아래 순으로 둡니다. 두 사람이 나란히 있는 표(양부·양모 등)는 한 사람 칸을 다 채운 뒤 다음 사람으로 넘어가게 둡니다.
+- 번호 토글은 칸 이름(라벨)을 가리지 않도록 값 칸 왼쪽 위에 둡니다. 선택지 상자와 겹치면 「표 오른쪽 여백」(쪽마다 `marginX`), 그래도 안 되면 「직접」으로 빈 자리에 끌어 둡니다
 - ○·✓ 크기는 1190px 폭 기준이라, 좁은 쪽(841px 등)에서는 쪽 폭에 맞춰 줄어듭니다
 - 글자는 칸 폭에 맞춰 줄어들고, 한 줄로 16px보다 작아지면 두 줄로 나눕니다
 - 서명·날인, 공무원 기재란, 접수번호·처리란은 입력받지 않습니다
 
-서식을 추가하거나 고친 뒤에는 점검을 돌립니다. 문제가 있으면 목록을 보여 주고 종료 코드 1로 끝납니다. `npm run build`도 타입 검사 다음에 이 점검을 돌리므로, 점검에 실패하면 빌드(배포)가 멈춥니다.
-```bash
-npm run check:forms
-```
-- 목록: key·formNo 중복, key 형식(kebab-case), 제목·설명 5개 국어
-- 쪽: 이미지 파일이 있는지, 이름에 한글·공백이 없는지, `width`·`height`가 실제 이미지 크기와 같은지
-- 칸: id 중복, 이용 기록 서버가 받는 id인지, 없는 섹션, label·help 5개 국어, 쪽 번호 순서, `area`·값 상자·○✓ 위치가 쪽 안에 있는지
-- 선택지 value 중복, `extra.when`·`copyFrom`·`preset`이 있는 값·칸을 가리키는지
-- 좌표가 서식 위 **맞는 자리**에 있는지는 확인하지 못합니다 — 화면에서 직접 확인합니다
+### 서버로 옮기기 (진행 중)
+지금까지의 서식 29개는 아직 코드(`src/forms/*.ts`, `catalog.ts`, `public/forms/`)에도 있고, 이것이 서버로 옮길 원본입니다.
+1. `npm run check:forms` — 코드의 서식 검사 (`validate.ts` 규칙, 빌드 때도 돔)
+2. `npm run export:forms -- <폴더>` — `forms.json` + PNG로 내보냄 (24·26번은 서식 두 개로 나뉨)
+3. gusring-server에서 `npm run forms:import <폴더>` — 넣고 v1으로 게시
+4. 서버 데이터로 그린 서식이 지금과 같은지 비교한 뒤 코드의 서식 파일·`public/forms/`를 지웁니다
+- 24번은 이용 기록 `formKey`가 `seal-status-report` → `seal-change-report`로 바뀝니다 (`formNo`로는 이어짐)
 
 ## 확인이 필요한 것
 - 외국인 이름의 한글 표기 기준 (현재 안내: 여권·외국인등록증 이름을 한글로 옮겨 적기)

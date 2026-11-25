@@ -113,6 +113,9 @@ const checkUnique = (key, formNo, selfId) => {
   if (live().some((f) => f.formNo === formNo && f.id !== selfId)) throw new ApiError(409, 'FORM_NO_TAKEN', '이미 쓰는 서식 번호입니다.');
 };
 
+// gusring-server src/middlewares/security-headers.ts의 adminPageCsp와 같게
+const ADMIN_CSP = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'";
+
 let validate;
 const loadValidate = async () => {
   // 게시 검사는 실제 서버처럼 validate.ts 규칙 (TS라 vite로 읽는다)
@@ -127,6 +130,20 @@ async function route(req, res) {
   const path = url.pathname;
   const m = (re) => re.exec(path);
   let p;
+
+  // 관리 화면 빌드(dist-admin)를 실제 서버처럼 /admin/forms/에서 CSP와 함께 제공 — 빌드가 CSP에 막히지 않는지 확인용
+  if (req.method === 'GET' && path.startsWith('/admin/forms')) {
+    const distAdmin = join(root, 'dist-admin');
+    const rel = path.replace(/^\/admin\/forms\/?/, '');
+    const file = rel && existsSync(join(distAdmin, rel)) && !rel.includes('..') ? join(distAdmin, rel) : join(distAdmin, 'admin.html');
+    if (!existsSync(file)) throw new ApiError(404, 'NOT_FOUND', '먼저 npm run build:admin 을 돌려 주세요.');
+    const type = { js: 'text/javascript', css: 'text/css', html: 'text/html; charset=utf-8' }[file.split('.').pop()] ?? 'application/octet-stream';
+    res.writeHead(200, {
+      'Content-Type': type,
+      'Content-Security-Policy': ADMIN_CSP,
+    });
+    return res.end(readFileSync(file));
+  }
 
   // 공개 (CORS 허용)
   const cors = { 'Access-Control-Allow-Origin': '*' };

@@ -8,7 +8,7 @@ import { isFilled } from '../forms/render';
 import { Box, FieldValue, FormDef, Lang, pageIndex, Values } from '../forms/types';
 import { tr, UI } from '../i18n';
 import { FormEntry } from '../lib/forms-api';
-import { flush, track } from '../lib/gusring-api';
+import { flush, track } from '../lib/analytics';
 import { load, remove, save, tabOnly, valuesKey } from '../lib/storage';
 import Header from './Header';
 
@@ -27,9 +27,11 @@ interface Props {
   onBack: () => void;
   onLanding: () => void;
   onMap: () => void;
+  /** 관리 화면의 이용자 화면 미리보기 (의견 보내기·지도 숨김) */
+  preview?: boolean;
 }
 
-export default function FormFillView({ entry, form, lang, onBack, onLanding, onMap }: Props) {
+export default function FormFillView({ entry, form, lang, onBack, onLanding, onMap, preview }: Props) {
   const title = entry.title;
   /** 입력값은 이 탭에만 둔다 (탭을 닫으면 지워짐) — lib/storage.ts */
   const VALUES_KEY = valuesKey(entry.key);
@@ -265,6 +267,7 @@ export default function FormFillView({ entry, form, lang, onBack, onLanding, onM
           onLanding={onLanding}
           onMap={onMap}
           feedbackContext={{ formKey, formNo, fieldId: activeId ?? undefined }}
+          preview={preview}
         />
 
         {/* 전체 항목 · 서류 이름 · 이전 · 다음 */}

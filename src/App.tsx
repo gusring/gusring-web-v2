@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Lang } from './forms/types';
 import { languages } from './i18n';
-import { track } from './lib/gusring-api';
+import { track } from './lib/analytics';
 import { load, save } from './lib/storage';
 import FormLoader from './pages/FormLoader';
 import Header from './pages/Header';

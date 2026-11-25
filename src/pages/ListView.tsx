@@ -4,7 +4,7 @@ import { categories } from '../forms/categories';
 import { CategoryKey, Lang } from '../forms/types';
 import { fetchFormList, FormSummary } from '../lib/forms-api';
 import { tr, UI } from '../i18n';
-import { track } from '../lib/gusring-api';
+import { track } from '../lib/analytics';
 
 // gusring-web ListView 그대로 (검색 + 카테고리 칩 + 서식 카드). 목록은 서버의 게시된 서식
 

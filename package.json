@@ -9,7 +9,9 @@
     "preview": "vite preview",
     "check:forms": "node scripts/check-forms.mjs",
     "export:forms": "node scripts/export-forms.mjs",
-    "dev:api": "node scripts/dev-api.mjs"
+    "dev:api": "node scripts/dev-api.mjs",
+    "build:admin": "tsc --noEmit && vite build --mode admin",
+    "admin:copy": "node scripts/admin-copy.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.511.0",
