@@ -40,8 +40,8 @@ src/forms/birth-report.ts 출생신고서 칸 정의: 좌표 + 5개 국어 라�
 src/forms/countries.ts    국가 목록 (모국어 표시 → 한국어 국가명 출력)
 src/forms/render.ts       입력값 → 서식 위 표시(Mark) 변환, 글자 크기 자동 맞춤
 src/App.tsx               해시 라우팅 (언어 선택 → 문서 선택 → 서식 작성)
-src/pages/                LandingView · ListView · Header · OfficeMap (gusring-web) + FormFillView
-src/forms/catalog.ts      문서 선택 화면 서식 목록 · 카테고리
+src/pages/                LandingView · ListView · Header · OfficeMap (gusring-web) + FormLoader · FormFillView
+src/forms/catalog.ts      문서 선택 화면 서식 목록 · 카테고리 · 서식 제목 (서식 정의는 열 때 따로 받음)
 src/components/FormSvg    서식 이미지 + 입력값 + 번호 토글 (SVG)
 src/components/FieldSheet 바텀시트 (안내 · 입력 · 칸 미리보기)
 src/lib/exportImage.ts    같은 Mark를 Canvas에 그려 PNG 생성
@@ -52,6 +52,8 @@ scripts/check-forms.mjs   서식 정의 점검 (npm run check:forms)
 
 ## 서식 추가하기
 `src/forms/{formKey}.ts`에 `FormDef`를 하나 더 만들고 `src/forms/catalog.ts`에 v1 서식 번호(`formNo`)·카테고리·설명과 함께 등록하면 문서 선택 화면에 나타납니다. `formKey`는 영어 kebab-case(예: `birth-report`)입니다.
+- 서식 정의는 서식마다 따로 나눠(코드 분할) 그 서식을 열 때 받습니다. 그래서 `catalog.ts`에서 서식 파일을 `import`하지 않고 `formId: '{formKey}'`와 `load: () => import('./{formKey}').then((m) => m.서식이름)`으로 등록합니다
+- 목록에 보일 제목은 `catalog.ts`의 `FORM_TITLES`에도 `FormDef.title`과 똑같이 넣습니다 (`npm run check:forms`가 둘이 같은지 확인)
 - 원본 이미지: `public/forms/{formKey}_ko.png`, 2쪽은 `{formKey}_ko_2.png` (파일 이름에 한글·공백 금지)
 - `pages`: 쪽마다 `{ image, width, height }`. 1쪽 서식도 한 장짜리 배열
 - 서식 하나를 목록의 여러 항목이 같이 쓰면 항목마다 `key`(주소·저장 이름)와 `title`을 따로 두고, 필요하면 `preset`(처음 열 때 미리 골라 둘 값)을 둡니다 (예: 24·26번 인감 신고서)

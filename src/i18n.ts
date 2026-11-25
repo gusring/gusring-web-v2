@@ -63,6 +63,8 @@ export const UI = {
   outputTitle:   { ko: '완성된 한국어 서식', en: 'Completed Korean form', zh: '已完成的韩文表格', ja: '完成した韓国語の書式', vi: 'Mẫu đơn tiếng Hàn đã hoàn thành' },
   saveImage:     { ko: '이미지 저장', en: 'Save image', zh: '保存图片', ja: '画像を保存', vi: 'Lưu ảnh' },
   renderFailed:  { ko: '완성 서식을 만들지 못했어요. 인터넷 연결을 확인하고 다시 시도해 주세요.', en: 'Could not create the completed form. Check your internet connection and try again.', zh: '无法生成完成的表格。请检查网络连接后重试。', ja: '完成した書式を作成できませんでした。インターネット接続を確認して、もう一度お試しください。', vi: 'Không thể tạo mẫu đã hoàn thành. Hãy kiểm tra kết nối internet và thử lại.' },
+  formLoading:   { ko: '서식을 불러오는 중...', en: 'Loading the form...', zh: '正在加载表格...', ja: '書式を読み込み中...', vi: 'Đang tải mẫu đơn...' },
+  formLoadFailed: { ko: '서식을 불러오지 못했어요. 인터넷 연결을 확인하고 다시 시도해 주세요.', en: 'Could not load the form. Check your internet connection and try again.', zh: '无法加载表格。请检查网络连接后重试。', ja: '書式を読み込めませんでした。インターネット接続を確認して、もう一度お試しください。', vi: 'Không tải được mẫu đơn. Hãy kiểm tra kết nối internet và thử lại.' },
   retry:         { ko: '다시 시도', en: 'Try again', zh: '重试', ja: '再試行', vi: 'Thử lại' },
   saveFailed:    { ko: '이미지를 저장하지 못했어요. 다시 시도하거나 인쇄를 이용해 주세요.', en: 'Could not save the image. Try again or use Print instead.', zh: '无法保存图片。请重试或改用打印。', ja: '画像を保存できませんでした。もう一度試すか、印刷をご利用ください。', vi: 'Không lưu được ảnh. Hãy thử lại hoặc dùng chức năng In.' },
   print:         { ko: '인쇄', en: 'Print', zh: '打印', ja: '印刷', vi: 'In' },

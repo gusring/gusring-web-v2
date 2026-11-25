@@ -20,7 +20,7 @@ const vite = await createServer({
 
 let problems = 0;
 try {
-  const { catalog, entryKey } = await vite.ssrLoadModule('/src/forms/catalog.ts');
+  const { catalog, entryKey, formTitle } = await vite.ssrLoadModule('/src/forms/catalog.ts');
   const { cleanEvent } = await vite.ssrLoadModule('/src/lib/gusring-api.ts');
 
   const problem = (where, msg) => {
@@ -59,8 +59,17 @@ try {
   const formNos = new Map();
   for (const entry of catalog) {
     const key = entryKey(entry);
-    const form = entry.form;
     const where = `${entry.formNo} ${key}`;
+    let form;
+    try {
+      form = await entry.load();
+    } catch (e) {
+      problem(where, `서식 정의를 불러오지 못함 (${e.message})`);
+      continue;
+    }
+    if (form.id !== entry.formId) problem(where, `목록 formId ${entry.formId} ↔ 서식 정의 id ${form.id}`);
+    // 목록 제목(catalog.ts FORM_TITLES)은 서식 정의 제목을 옮겨 둔 것 — 고칠 때 둘 다 고친다
+    if (JSON.stringify(formTitle(form.id)) !== JSON.stringify(form.title)) problem(where, '목록 제목(catalog.ts FORM_TITLES)이 서식 정의 title과 다름');
 
     if (keys.has(key)) problem(where, '목록 key 중복');
     keys.add(key);

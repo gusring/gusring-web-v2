@@ -4,7 +4,7 @@ import { Lang } from './forms/types';
 import { languages } from './i18n';
 import { track } from './lib/gusring-api';
 import { load, save } from './lib/storage';
-import FormFillView from './pages/FormFillView';
+import FormLoader from './pages/FormLoader';
 import Header from './pages/Header';
 import LandingView from './pages/LandingView';
 import ListView from './pages/ListView';
@@ -107,7 +107,7 @@ export default function App() {
     if (entry) {
       return (
         <div className="w-full sm:max-w-md sm:mx-auto sm:shadow-2xl">
-          <FormFillView key={entryKey(entry)} entry={entry} lang={lang} onBack={back} onLanding={toLanding} onMap={toMap} />
+          <FormLoader key={entryKey(entry)} entry={entry} lang={lang} onBack={back} onLanding={toLanding} onMap={toMap} />
         </div>
       );
     }
